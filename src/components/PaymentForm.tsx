@@ -4,7 +4,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Shield, CreditCard, Lock } from 'lucide-react';
+import { CreditCard, Lock } from 'lucide-react';
 
 interface PaymentFormProps {
   selectedPlan: {
@@ -95,7 +95,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ selectedPlan }) => {
       return `Complete Enrollment & Pay $${selectedPlan.totalPrice.toLocaleString()}`;
     } else {
       const installmentAmount = selectedPlan.totalPrice / selectedPlan.installments;
-      return `Start Now & Pay $${installmentAmount.toLocaleString()}`;
+      return `Pay First Installment ($${installmentAmount.toLocaleString()})`;
     }
   };
 

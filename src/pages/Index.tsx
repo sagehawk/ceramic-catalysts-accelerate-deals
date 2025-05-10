@@ -7,7 +7,7 @@ import PaymentForm from "@/components/PaymentForm";
 import ProgramBenefits from "@/components/ProgramBenefits";
 import Testimonials from "@/components/Testimonials";
 import TrustIndicators from "@/components/TrustIndicators";
-import { Shield, CheckCircle } from "lucide-react";
+import { Shield, Info, CheckCircle } from "lucide-react";
 
 const Index = () => {
   const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
@@ -43,35 +43,32 @@ const Index = () => {
     }
   ];
 
-  // Set initial visible plans
+  // Set initial visible plans to show all plans
   useEffect(() => {
-    setVisiblePlans([plans[0], plans[plans.length - 1]]);
+    setVisiblePlans([...plans]);
   }, []);
 
   const selectedPlan = selectedPlanId 
     ? plans.find(plan => plan.id === selectedPlanId) || null
     : null;
 
+  // The function below is no longer needed as we're showing all plans by default
   const handleToggleOptions = () => {
     setIsAnimating(true);
     
-    // If showing more options, first fade out
     setTimeout(() => {
-      // After fade out, update the plans
       if (showMoreOptions) {
         setVisiblePlans([plans[0], plans[plans.length - 1]]);
       } else {
         setVisiblePlans([...plans]);
       }
       
-      // Toggle the state
       setShowMoreOptions(!showMoreOptions);
       
-      // Add a small delay before fading back in
       setTimeout(() => {
         setIsAnimating(false);
       }, 50);
-    }, 300); // Match this duration with the CSS transition
+    }, 300);
   };
 
   return (
@@ -92,6 +89,11 @@ const Index = () => {
             <span className="font-semibold">One-time setup fee:</span> $4,500 - Choose your preferred payment plan below
           </p>
         </div>
+        
+        {/* Value Statement */}
+        <div className="mb-8 text-accent-blue">
+          <p className="text-lg font-medium">Your $4,500 setup investment averages to just $25/day over 6 months for guaranteed results!</p>
+        </div>
       </div>
 
       {/* Program Benefits */}
@@ -101,7 +103,7 @@ const Index = () => {
       <div className="container mx-auto max-w-5xl mb-10">
         <h2 className="text-2xl font-semibold text-white mb-6 text-center">Choose Your Payment Option</h2>
         
-        <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-${showMoreOptions ? "3" : "2"} gap-6 mb-4 transition-opacity duration-300 ease-in-out ${isAnimating ? "opacity-0" : "opacity-100"}`}>
+        <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-4 transition-opacity duration-300 ease-in-out ${isAnimating ? "opacity-0" : "opacity-100"}`}>
           {visiblePlans.map((plan) => (
             <PaymentCard
               key={plan.id}
@@ -117,29 +119,10 @@ const Index = () => {
           ))}
         </div>
 
-        {/* Toggle More Options */}
-        <div className="flex justify-center mb-8">
-          <Button
-            variant="ghost"
-            className="text-text-secondary hover:text-white"
-            onClick={handleToggleOptions}
-          >
-            {showMoreOptions ? (
-              <>
-                <span className="mr-2">Hide installment options</span>
-              </>
-            ) : (
-              <>
-                <span className="mr-2">See all installment options</span>
-              </>
-            )}
-          </Button>
-        </div>
-
         {/* Ad Spend Notice */}
         <div className="bg-slate rounded-xl p-4 mb-10 max-w-3xl mx-auto border border-gray-700">
           <div className="flex items-start">
-            <Shield className="h-6 w-6 text-accent-blue mr-3 mt-1 flex-shrink-0" />
+            <Info className="h-6 w-6 text-accent-blue mr-3 mt-1 flex-shrink-0" />
             <div>
               <p className="text-gray-300 text-sm">
                 <span className="font-semibold text-white">Program Success Requirement:</span> A minimum ad spend of $1,500 per month (paid directly to ad platforms) is required to achieve the 90-job guarantee. This is separate from the setup fee.

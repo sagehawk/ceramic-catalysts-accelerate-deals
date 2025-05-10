@@ -24,15 +24,14 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
   benefit,
   description,
 }) => {
-  const dailyCost = totalPrice / daysInPlan;
   const installmentAmount = totalPrice / installments;
 
   return (
     <div
       className={cn(
         "bg-slate p-6 rounded-2xl shadow-lg cursor-pointer transition-all duration-200",
-        "border-2 border-transparent hover:border-accent-blue",
-        isSelected ? "border-accent-blue animate-card-select" : ""
+        "border-2 hover:border-accent-blue",
+        isSelected ? "border-accent-blue bg-slate/80 shadow-xl transform scale-[1.02]" : "border-transparent"
       )}
       onClick={onClick}
       tabIndex={0}
@@ -45,7 +44,14 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
         }
       }}
     >
-      <h3 className="text-2xl font-semibold text-white mb-2">{title}</h3>
+      <div className="flex items-start justify-between">
+        <h3 className="text-2xl font-semibold text-white mb-2">{title}</h3>
+        {isSelected && (
+          <div className="bg-accent-blue text-white text-xs font-medium py-1 px-2 rounded-full">
+            Selected
+          </div>
+        )}
+      </div>
       
       <div className="text-3xl font-bold text-white mb-1">
         ${totalPrice.toLocaleString()}
@@ -71,10 +77,6 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
           </span>
         </div>
       )}
-      
-      <div className="text-sm text-gray-400 mt-3">
-        ${dailyCost.toFixed(2)} per day
-      </div>
     </div>
   );
 };
