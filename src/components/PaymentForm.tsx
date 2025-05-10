@@ -93,6 +93,9 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ selectedPlan }) => {
     
     if (selectedPlan.installments === 1) {
       return `Complete Enrollment & Pay $${selectedPlan.totalPrice.toLocaleString()}`;
+    } else if (selectedPlan.installments === 6) { // Monthly plan
+      const monthlyAmount = selectedPlan.totalPrice / selectedPlan.installments;
+      return `Start Monthly Plan & Pay $${monthlyAmount.toLocaleString()}`;
     } else {
       const installmentAmount = selectedPlan.totalPrice / selectedPlan.installments;
       return `Pay First Installment ($${installmentAmount.toLocaleString()})`;
@@ -110,9 +113,11 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ selectedPlan }) => {
         <div className="bg-slate bg-opacity-70 p-4 rounded-xl mb-6">
           <p className="text-white">
             <span className="font-medium">Selected plan:</span> {selectedPlan.title}
-            {selectedPlan.installments > 1 ? 
-              ` - ${selectedPlan.installments} payments of $${(selectedPlan.totalPrice / selectedPlan.installments).toLocaleString()}` : 
-              ` - $${selectedPlan.totalPrice.toLocaleString()}`}
+            {selectedPlan.installments === 6 ? 
+              ` - $${(selectedPlan.totalPrice / selectedPlan.installments).toLocaleString()}/month for 6 months` : 
+              selectedPlan.installments > 1 ?
+              ` - ${selectedPlan.installments} payments of $${(selectedPlan.totalPrice / selectedPlan.installments).toLocaleString()}` :
+              ` - $${selectedPlan.totalPrice.toLocaleString()} one-time payment`}
           </p>
         </div>
       )}
