@@ -4,6 +4,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Shield, CreditCard, Lock } from 'lucide-react';
 
 interface PaymentFormProps {
   selectedPlan: {
@@ -59,8 +60,8 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ selectedPlan }) => {
     
     if (!selectedPlan) {
       toast({
-        title: "Please select a plan",
-        description: "You must select a payment plan before proceeding.",
+        title: "Please select a payment plan",
+        description: "You must select one of the payment options before proceeding.",
         variant: "destructive",
       });
       return;
@@ -72,8 +73,8 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ selectedPlan }) => {
     setTimeout(() => {
       setIsSubmitting(false);
       toast({
-        title: "Thank you!",
-        description: `Thank you, ${formData.fullName}! You've chosen the ${selectedPlan.title} at ${selectedPlan.installments > 1 ? `${selectedPlan.installments}× $${(selectedPlan.totalPrice / selectedPlan.installments).toLocaleString()}` : `$${selectedPlan.totalPrice.toLocaleString()}`}. We'll start driving results soon.`,
+        title: "Enrollment Complete!",
+        description: `Thank you, ${formData.fullName}! Your enrollment in the 90-Job Guarantee Program is confirmed with the ${selectedPlan.title} option. You'll receive onboarding details via email shortly.`,
       });
       
       // Reset form
@@ -88,19 +89,33 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ selectedPlan }) => {
   };
 
   const getButtonText = () => {
-    if (!selectedPlan) return "Please select a plan";
+    if (!selectedPlan) return "Select a payment plan";
     
     if (selectedPlan.installments === 1) {
-      return `Pay $${selectedPlan.totalPrice.toLocaleString()}`;
+      return `Complete Enrollment & Pay $${selectedPlan.totalPrice.toLocaleString()}`;
     } else {
       const installmentAmount = selectedPlan.totalPrice / selectedPlan.installments;
-      return `Pay ${selectedPlan.installments}× $${installmentAmount.toLocaleString()}`;
+      return `Start Now & Pay $${installmentAmount.toLocaleString()}`;
     }
   };
 
   return (
-    <div className="bg-charcoal rounded-2xl shadow-lg p-6 w-full max-w-md mx-auto">
-      <h3 className="text-xl font-semibold text-white mb-6">Payment Details</h3>
+    <div className="bg-charcoal rounded-2xl shadow-lg p-8 w-full max-w-lg mx-auto">
+      <div className="flex items-center mb-6">
+        <CreditCard className="h-6 w-6 text-accent-blue mr-3" />
+        <h3 className="text-xl font-semibold text-white">Secure Payment Details</h3>
+      </div>
+      
+      {selectedPlan && (
+        <div className="bg-slate bg-opacity-70 p-4 rounded-xl mb-6">
+          <p className="text-white">
+            <span className="font-medium">Selected plan:</span> {selectedPlan.title}
+            {selectedPlan.installments > 1 ? 
+              ` - ${selectedPlan.installments} payments of $${(selectedPlan.totalPrice / selectedPlan.installments).toLocaleString()}` : 
+              ` - $${selectedPlan.totalPrice.toLocaleString()}`}
+          </p>
+        </div>
+      )}
       
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-2">
@@ -172,9 +187,14 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ selectedPlan }) => {
           </div>
         </div>
         
+        <div className="flex items-center pt-2">
+          <Lock className="h-4 w-4 text-gray-500 mr-2" />
+          <span className="text-gray-500 text-sm">Secure 256-bit SSL encrypted payment</span>
+        </div>
+        
         <Button
           type="submit"
-          className="w-full py-6 bg-accent-blue hover:bg-blue-500 transition-all duration-300 hover:animate-button-hover text-white font-medium rounded-xl shadow text-lg mt-6"
+          className="w-full py-6 bg-accent-blue hover:bg-blue-500 transition-all duration-300 hover:animate-button-hover text-white font-medium rounded-xl shadow text-lg mt-4"
           disabled={isSubmitting || !selectedPlan}
         >
           {isSubmitting ? "Processing..." : getButtonText()}

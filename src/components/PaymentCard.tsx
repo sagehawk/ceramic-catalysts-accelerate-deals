@@ -1,16 +1,17 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
+import { CheckCircle } from 'lucide-react';
 
 interface PaymentCardProps {
   title: string;
   totalPrice: number;
   installments: number;
   daysInPlan: number;
-  monthlySavings?: number;
   isSelected: boolean;
   onClick: () => void;
-  includesGift?: boolean;
+  benefit?: string;
+  description?: string;
 }
 
 const PaymentCard: React.FC<PaymentCardProps> = ({
@@ -18,10 +19,10 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
   totalPrice,
   installments,
   daysInPlan,
-  monthlySavings,
   isSelected,
   onClick,
-  includesGift = false,
+  benefit,
+  description,
 }) => {
   const dailyCost = totalPrice / daysInPlan;
   const installmentAmount = totalPrice / installments;
@@ -50,32 +51,30 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
         ${totalPrice.toLocaleString()}
       </div>
       
-      <div className="text-sm text-gray-400 mb-2">
-        ${dailyCost.toFixed(2)} per day
-      </div>
-      
       {installments > 1 && (
-        <div className="text-gray-400 text-sm mb-2">
+        <div className="text-gray-300 text-lg font-medium mb-2">
           {installments} payments of ${installmentAmount.toLocaleString()}
         </div>
       )}
       
-      {monthlySavings && monthlySavings > 0 && (
-        <div className="bg-savings-green bg-opacity-20 text-savings-green py-1 px-3 rounded-full text-sm inline-block mb-3">
-          Save ${monthlySavings.toLocaleString()} vs monthly
+      {description && (
+        <div className="text-gray-400 text-sm mb-4">
+          {description}
         </div>
       )}
-
-      {includesGift && (
-        <div className="mt-3 border-t border-gray-700 pt-3">
-          <div className="flex items-center">
-            <span className="text-accent-blue text-lg mr-2">✓</span>
-            <span className="text-white text-sm">
-              Includes "10 Clients in 10 Days" package as a complementary gift
-            </span>
-          </div>
+      
+      {benefit && (
+        <div className="flex items-center mt-3 mb-3 bg-accent-blue bg-opacity-10 py-2 px-3 rounded-lg">
+          <CheckCircle className="h-4 w-4 text-accent-blue mr-2" />
+          <span className="text-white text-sm font-medium">
+            {benefit}
+          </span>
         </div>
       )}
+      
+      <div className="text-sm text-gray-400 mt-3">
+        ${dailyCost.toFixed(2)} per day
+      </div>
     </div>
   );
 };
