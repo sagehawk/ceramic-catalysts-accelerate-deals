@@ -106,6 +106,11 @@ export default {
 					'0%': { boxShadow: '0 0 5px rgba(234, 56, 76, 0.5)' },
 					'50%': { boxShadow: '0 0 15px rgba(234, 56, 76, 0.7)' },
 					'100%': { boxShadow: '0 0 5px rgba(234, 56, 76, 0.5)' }
+				},
+				'red-pulse': {
+					'0%': { boxShadow: '0 0 5px rgba(234, 56, 76, 0.4)' },
+					'50%': { boxShadow: '0 0 15px rgba(234, 56, 76, 0.7)' },
+					'100%': { boxShadow: '0 0 5px rgba(234, 56, 76, 0.4)' }
 				}
 			},
 			animation: {
@@ -113,7 +118,8 @@ export default {
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'card-select': 'card-select 0.2s ease-out forwards',
 				'button-hover': 'button-hover 0.2s ease-out',
-				'red-glow': 'red-glow 2s ease-in-out infinite'
+				'red-glow': 'red-glow 2s ease-in-out infinite',
+				'red-pulse': 'red-pulse 2s ease-in-out infinite'
 			}
 		}
 	},

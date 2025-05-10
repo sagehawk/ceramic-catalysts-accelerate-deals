@@ -44,11 +44,10 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
     <div
       className={cn(
         "bg-slate p-6 rounded-2xl shadow-lg cursor-pointer transition-all duration-300",
-        "border-2 hover:border-accent-red",
         isPrimary ? "bg-gradient-to-b from-slate to-charcoal" : "bg-slate/80",
         isSelected 
-          ? "border-accent-red bg-opacity-90 shadow-xl transform scale-[1.02] ring-2 ring-accent-red ring-opacity-50 animate-red-glow" 
-          : "border-transparent"
+          ? "border-accent-red border-2 bg-opacity-90 shadow-xl transform scale-[1.02] ring-2 ring-accent-red ring-opacity-50 animate-red-glow" 
+          : "border-transparent border-2 hover:border-accent-red"
       )}
       onClick={onClick}
       tabIndex={0}
@@ -75,19 +74,19 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
       </div>
       
       {isInstallmentPlan && (
-        <div className="text-gray-300 text-lg font-medium mb-2">
+        <div className="text-white text-lg font-medium mb-2">
           {installments} payments of ${installmentAmount.toLocaleString()}
         </div>
       )}
       
       {installments === 6 && (
-        <div className="text-gray-300 text-lg font-medium mb-2">
+        <div className="text-white text-lg font-medium mb-2">
           Total: ${totalPrice.toLocaleString()} over 6 months
         </div>
       )}
       
       {description && (
-        <div className="text-gray-400 text-sm mb-3">
+        <div className="text-white text-sm mb-3">
           {description}
         </div>
       )}

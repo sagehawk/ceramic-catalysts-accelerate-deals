@@ -105,3 +105,20 @@
 .glow-red {
   box-shadow: 0 0 10px rgba(234, 56, 76, 0.5);
 }
+
+/* Animation for selected payment card */
+@keyframes red-pulse {
+  0% {
+    box-shadow: 0 0 5px rgba(234, 56, 76, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(234, 56, 76, 0.7);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(234, 56, 76, 0.4);
+  }
+}
+
+.animate-red-glow {
+  animation: red-pulse 2s infinite ease-in-out;
+}
