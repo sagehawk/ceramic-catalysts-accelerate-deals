@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/Logo";
 import PaymentCard from "@/components/PaymentCard";
@@ -9,6 +9,8 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 const Index = () => {
   const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
   const [showMoreOptions, setShowMoreOptions] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [visiblePlans, setVisiblePlans] = useState<any[]>([]);
 
   const plans = [
     {
@@ -49,13 +51,36 @@ const Index = () => {
     },
   ];
 
+  // Set initial visible plans
+  useEffect(() => {
+    setVisiblePlans([plans[0], plans[plans.length - 1]]);
+  }, []);
+
   const selectedPlan = selectedPlanId 
     ? plans.find(plan => plan.id === selectedPlanId) || null
     : null;
 
-  const visiblePlans = showMoreOptions 
-    ? plans 
-    : [plans[0], plans[plans.length - 1]];
+  const handleToggleOptions = () => {
+    setIsAnimating(true);
+    
+    // If showing more options, first fade out
+    setTimeout(() => {
+      // After fade out, update the plans
+      if (showMoreOptions) {
+        setVisiblePlans([plans[0], plans[plans.length - 1]]);
+      } else {
+        setVisiblePlans([...plans]);
+      }
+      
+      // Toggle the state
+      setShowMoreOptions(!showMoreOptions);
+      
+      // Add a small delay before fading back in
+      setTimeout(() => {
+        setIsAnimating(false);
+      }, 50);
+    }, 300); // Match this duration with the CSS transition
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-charcoal to-slate text-white px-4 py-8">
@@ -74,7 +99,7 @@ const Index = () => {
 
       {/* Plan Cards Section */}
       <div className="container mx-auto max-w-5xl mb-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-4">
+        <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-${showMoreOptions ? "2" : "2"} gap-6 mb-4 transition-opacity duration-300 ease-in-out ${isAnimating ? "opacity-0" : "opacity-100"}`}>
           {visiblePlans.map((plan) => (
             <PaymentCard
               key={plan.id}
@@ -95,7 +120,7 @@ const Index = () => {
           <Button
             variant="ghost"
             className="text-text-secondary hover:text-white"
-            onClick={() => setShowMoreOptions(!showMoreOptions)}
+            onClick={handleToggleOptions}
           >
             {showMoreOptions ? (
               <>
