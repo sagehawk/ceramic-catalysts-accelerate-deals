@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -98,4 +99,9 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Custom animation for the red glow effect */
+.glow-red {
+  box-shadow: 0 0 10px rgba(234, 56, 76, 0.5);
 }

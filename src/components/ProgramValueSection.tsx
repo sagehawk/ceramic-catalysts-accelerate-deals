@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, Shield } from 'lucide-react';
 
 const ProgramValueSection = () => {
   const benefits = [
@@ -20,20 +20,23 @@ const ProgramValueSection = () => {
           <div className="space-y-4">
             {benefits.map((benefit, index) => (
               <div key={index} className="flex items-start">
-                <CheckCircle className="h-5 w-5 text-accent-blue mr-3 mt-0.5 flex-shrink-0" />
+                <CheckCircle className="h-5 w-5 text-accent-red mr-3 mt-0.5 flex-shrink-0" />
                 <span className="text-white">{benefit}</span>
               </div>
             ))}
           </div>
           
           <div className="bg-slate bg-opacity-40 rounded-xl p-5 flex flex-col justify-center">
-            <h3 className="text-xl font-semibold text-white mb-4">Our "Refund The Difference" Guarantee</h3>
+            <div className="flex items-center mb-4">
+              <Shield className="h-6 w-6 text-accent-red mr-3" />
+              <h3 className="text-xl font-semibold text-white">Our "Refund The Difference" Guarantee</h3>
+            </div>
             <p className="text-gray-300">
               If we fail to deliver 90 jobs in 6 months (with the required $1.5k/mo ad spend), 
               we'll refund the difference. For example, if we only deliver 80 jobs, 
               you get a refund for the 10 missing jobs.
             </p>
-            <div className="mt-4 bg-accent-blue bg-opacity-20 p-3 rounded-lg">
+            <div className="mt-4 bg-accent-red bg-opacity-20 p-3 rounded-lg">
               <p className="text-white font-medium text-sm">
                 We take on the risk, so you can invest with confidence.
               </p>

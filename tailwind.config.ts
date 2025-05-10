@@ -63,12 +63,13 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Custom colors based on the design spec
-				charcoal: '#1F2937',
-				slate: '#374151',
+				// Updated custom colors based on the brand identity
+				charcoal: '#101010', // Very dark charcoal/almost black
+				slate: '#1a1a1a', // Slightly lighter black for contrast
 				'text-secondary': '#B0BEC5',
-				'accent-blue': '#3B82F6',
-				'savings-green': '#10B981',
+				'accent-red': '#ea384c', // Vibrant red accent color
+				'savings-green': '#10B981', // Keep this for specific use cases
+				'accent-blue': '#ea384c', // Replacing blue with red to maintain compatibility
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -98,15 +99,21 @@ export default {
 					'100%': { transform: 'scale(1.05)', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.2)' }
 				},
 				'button-hover': {
-					'0%': { transform: 'translateY(0)' },
-					'100%': { transform: 'translateY(-2px)' }
+					'0%': { transform: 'translateY(0)', boxShadow: '0 4px 6px -1px rgba(234, 56, 76, 0.3)' },
+					'100%': { transform: 'translateY(-2px)', boxShadow: '0 8px 15px -3px rgba(234, 56, 76, 0.4)' }
+				},
+				'red-glow': {
+					'0%': { boxShadow: '0 0 5px rgba(234, 56, 76, 0.5)' },
+					'50%': { boxShadow: '0 0 15px rgba(234, 56, 76, 0.7)' },
+					'100%': { boxShadow: '0 0 5px rgba(234, 56, 76, 0.5)' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'card-select': 'card-select 0.2s ease-out forwards',
-				'button-hover': 'button-hover 0.2s ease-out'
+				'button-hover': 'button-hover 0.2s ease-out',
+				'red-glow': 'red-glow 2s ease-in-out infinite'
 			}
 		}
 	},

@@ -105,7 +105,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ selectedPlan }) => {
   return (
     <div className="bg-charcoal rounded-2xl shadow-lg p-8 w-full max-w-lg mx-auto">
       <div className="flex items-center mb-6">
-        <CreditCard className="h-6 w-6 text-accent-blue mr-3" />
+        <CreditCard className="h-6 w-6 text-accent-red mr-3" />
         <h3 className="text-xl font-semibold text-white">Secure Payment Details</h3>
       </div>
       
@@ -199,7 +199,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ selectedPlan }) => {
         
         <Button
           type="submit"
-          className="w-full py-6 bg-accent-blue hover:bg-blue-500 transition-all duration-300 hover:animate-button-hover text-white font-medium rounded-xl shadow text-lg mt-4"
+          className={`w-full py-6 bg-accent-red hover:bg-accent-red/90 transition-all duration-300 text-white font-medium rounded-xl shadow text-lg mt-4 ${selectedPlan ? 'animate-red-glow' : ''}`}
           disabled={isSubmitting || !selectedPlan}
         >
           {isSubmitting ? "Processing..." : getButtonText()}

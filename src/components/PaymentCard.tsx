@@ -44,10 +44,10 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
     <div
       className={cn(
         "bg-slate p-6 rounded-2xl shadow-lg cursor-pointer transition-all duration-300",
-        "border-2 hover:border-accent-blue",
+        "border-2 hover:border-accent-red",
         isPrimary ? "bg-gradient-to-b from-slate to-charcoal" : "bg-slate/80",
         isSelected 
-          ? "border-accent-blue bg-opacity-90 shadow-xl transform scale-[1.02] ring-2 ring-accent-blue ring-opacity-50" 
+          ? "border-accent-red bg-opacity-90 shadow-xl transform scale-[1.02] ring-2 ring-accent-red ring-opacity-50 animate-red-glow" 
           : "border-transparent"
       )}
       onClick={onClick}
@@ -64,7 +64,7 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
       <div className="flex items-start justify-between">
         <h3 className="text-2xl font-semibold text-white mb-2">{title}</h3>
         {isSelected && (
-          <div className="bg-accent-blue text-white text-xs font-medium py-1 px-3 rounded-full">
+          <div className="bg-accent-red text-white text-xs font-medium py-1 px-3 rounded-full">
             Selected
           </div>
         )}
@@ -93,7 +93,7 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
       )}
       
       {valueProposition && (
-        <div className="flex items-center mb-3 bg-accent-blue bg-opacity-20 py-2 px-3 rounded-lg">
+        <div className="flex items-center mb-3 bg-accent-red bg-opacity-20 py-2 px-3 rounded-lg">
           <span className="text-white text-sm font-medium">
             {valueProposition}
           </span>
@@ -107,8 +107,8 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
       )}
       
       {benefit && (
-        <div className="flex items-center mt-3 mb-2 bg-savings-green bg-opacity-10 py-2 px-3 rounded-lg">
-          <CheckCircle className="h-4 w-4 text-savings-green mr-2" />
+        <div className="flex items-center mt-3 mb-2 bg-accent-red bg-opacity-10 py-2 px-3 rounded-lg">
+          <CheckCircle className="h-4 w-4 text-accent-red mr-2" />
           <span className="text-white text-sm font-medium">
             {benefit}
           </span>

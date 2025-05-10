@@ -162,7 +162,7 @@ const Index = () => {
         <div className="flex justify-center mt-6">
           <Button 
             variant="outline"
-            className="border-accent-blue text-accent-blue hover:bg-accent-blue hover:text-white"
+            className="border-accent-red text-accent-red hover:bg-accent-red hover:text-white"
             onClick={handleToggleOptions}
           >
             {showAllOptions ? "Show Primary Options Only" : "See All Payment Options & Installments"}
@@ -172,7 +172,7 @@ const Index = () => {
         {/* Ad Spend Notice */}
         <div className="bg-slate rounded-xl p-4 mb-10 mt-8 max-w-3xl mx-auto border border-gray-700">
           <div className="flex items-start">
-            <Info className="h-6 w-6 text-accent-blue mr-3 mt-1 flex-shrink-0" />
+            <Info className="h-6 w-6 text-accent-red mr-3 mt-1 flex-shrink-0" />
             <div>
               <p className="text-gray-300 text-sm">
                 <span className="font-semibold text-white">Program Success Requirement:</span> A minimum ad spend of $1,500 per month (paid directly to ad platforms) is required to achieve the 90-job guarantee. This is separate from the program investment.
@@ -198,8 +198,8 @@ const Index = () => {
         <p>© 2023 Ceramic Catalysts. All rights reserved.</p>
         <p className="mt-2">Secure payment processing by Stripe</p>
         <p className="mt-2">
-          <a href="#" className="text-accent-blue hover:underline mr-4">Terms & Conditions</a>
-          <a href="#" className="text-accent-blue hover:underline">Privacy Policy</a>
+          <a href="#" className="text-accent-red hover:underline mr-4">Terms & Conditions</a>
+          <a href="#" className="text-accent-red hover:underline">Privacy Policy</a>
         </p>
       </div>
     </div>
