@@ -46,8 +46,8 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
         "bg-slate p-6 rounded-2xl shadow-lg cursor-pointer transition-all duration-300",
         isPrimary ? "bg-gradient-to-b from-slate to-charcoal" : "bg-slate/80",
         isSelected 
-          ? "border-accent-red border-2 bg-opacity-90 shadow-xl transform scale-[1.02] ring-2 ring-accent-red ring-opacity-50 animate-red-glow" 
-          : "border-transparent border-2 hover:border-accent-red"
+          ? "border-accent-red border-[3px] bg-opacity-90 shadow-xl transform scale-[1.02] ring-2 ring-accent-red ring-opacity-50 animate-red-glow" 
+          : "border-transparent border-2 hover:border-accent-red hover:border-opacity-70"
       )}
       onClick={onClick}
       tabIndex={0}
@@ -100,7 +100,7 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
       )}
       
       {dailyEquivalent && (
-        <div className="text-gray-300 text-sm mb-3">
+        <div className="text-gray-300 text-sm mb-3 text-base">
           {dailyEquivalent}
         </div>
       )}

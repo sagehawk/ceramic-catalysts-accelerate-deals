@@ -162,8 +162,8 @@ const Index = () => {
         <div className="flex justify-center mt-6">
           <Button 
             variant="default"
-            className="border-accent-red"
             onClick={handleToggleOptions}
+            className="transition-all duration-500 ease-in-out transform hover:scale-105"
           >
             {showAllOptions ? "Show Primary Options Only" : "See All Payment Options & Installments"}
           </Button>
