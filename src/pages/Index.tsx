@@ -1,14 +1,16 @@
 
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import Logo from "@/components/Logo";
-import PaymentCard from "@/components/PaymentCard";
-import PaymentForm from "@/components/PaymentForm";
+import PaymentForm from "@/components/payment/PaymentForm";
 import ProgramBenefits from "@/components/ProgramBenefits";
 import Testimonials from "@/components/Testimonials";
 import TrustIndicators from "@/components/TrustIndicators";
-import { Info, Badge } from "lucide-react";
 import ProgramValueSection from "@/components/ProgramValueSection";
+import HeroSection from "@/components/enrollment/HeroSection";
+import PaymentOptions from "@/components/enrollment/PaymentOptions";
+import PlanOptionsToggle from "@/components/enrollment/PlanOptionsToggle";
+import AdSpendNotice from "@/components/enrollment/AdSpendNotice";
+import PageFooter from "@/components/enrollment/PageFooter";
 
 const Index = () => {
   const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
@@ -127,19 +129,7 @@ const Index = () => {
       </div>
 
       {/* Hero Section */}
-      <div className="container mx-auto flex flex-col items-center justify-center pt-16 pb-8 text-center">
-        <h1 className="text-4xl font-bold text-white mb-2">Secure Your Spot: The 90-Job Guarantee Program</h1>
-        <p className="text-xl text-gray-300 max-w-3xl mb-6">
-          Let's Get You 90+ High-Value Ceramic Coating & PPF Jobs in 6 Months – Guaranteed!
-        </p>
-        
-        {/* Dynamic value proposition based on selection */}
-        <div className="bg-slate bg-opacity-50 p-4 rounded-xl mb-8 max-w-3xl">
-          <p className="text-lg text-white">
-            {getDynamicSubheader()}
-          </p>
-        </div>
-      </div>
+      <HeroSection dynamicSubheader={getDynamicSubheader()} />
 
       {/* Program Benefits */}
       <ProgramValueSection />
@@ -150,48 +140,21 @@ const Index = () => {
           {showAllOptions ? "Choose Your Payment Option" : "Select Your Investment Model"}
         </h2>
         
-        <div className={`grid grid-cols-1 gap-6 mb-4 transition-opacity duration-300 ease-in-out ${isAnimating ? "opacity-0" : "opacity-100"}`}>
-          {visiblePlans.map((plan) => (
-            <PaymentCard
-              key={plan.id}
-              title={plan.title}
-              totalPrice={plan.totalPrice}
-              installments={plan.installments}
-              daysInPlan={plan.daysInPlan}
-              benefit={plan.benefit}
-              description={plan.description}
-              valueProposition={plan.valueProposition}
-              features={plan.features}
-              isPrimary={plan.isPrimary}
-              isBestValue={plan.isBestValue}
-              isSelected={selectedPlanId === plan.id}
-              onClick={() => setSelectedPlanId(plan.id)}
-              showCompactView={showAllOptions}
-            />
-          ))}
-        </div>
+        <PaymentOptions
+          visiblePlans={visiblePlans}
+          selectedPlanId={selectedPlanId}
+          setSelectedPlanId={setSelectedPlanId}
+          isAnimating={isAnimating}
+          showCompactView={showAllOptions}
+        />
         
-        <div className="flex justify-center mt-8">
-          <Button 
-            variant="default"
-            onClick={handleToggleOptions}
-            className="transition-all duration-500 ease-in-out transform hover:scale-105"
-          >
-            {showAllOptions ? "Show Primary Options Only" : "See All Payment Options & Installments"}
-          </Button>
-        </div>
+        <PlanOptionsToggle
+          showAllOptions={showAllOptions}
+          handleToggleOptions={handleToggleOptions}
+        />
 
         {/* Ad Spend Notice */}
-        <div className="bg-slate rounded-xl p-4 mb-10 mt-8 max-w-3xl mx-auto border border-gray-700">
-          <div className="flex items-start">
-            <Info className="h-6 w-6 text-accent-red mr-3 mt-1 flex-shrink-0" />
-            <div>
-              <p className="text-gray-300 text-sm">
-                <span className="font-semibold text-white">Program Success Requirement:</span> A minimum ad spend of $1,500 per month (paid directly to ad platforms) is required to achieve the 90-job guarantee. This is separate from the program investment.
-              </p>
-            </div>
-          </div>
-        </div>
+        <AdSpendNotice />
 
         {/* Testimonials */}
         <Testimonials />
@@ -206,14 +169,7 @@ const Index = () => {
       </div>
 
       {/* Footer */}
-      <div className="container mx-auto text-center text-sm text-gray-500 mt-12">
-        <p>© 2023 Ceramic Catalysts. All rights reserved.</p>
-        <p className="mt-2">Secure payment processing by Stripe</p>
-        <p className="mt-2">
-          <a href="#" className="text-accent-red hover:underline mr-4">Terms & Conditions</a>
-          <a href="#" className="text-accent-red hover:underline">Privacy Policy</a>
-        </p>
-      </div>
+      <PageFooter />
     </div>
   );
 };
