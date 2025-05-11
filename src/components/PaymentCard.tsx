@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, Badge } from 'lucide-react';
 
 interface PaymentCardProps {
   title: string;
@@ -15,7 +15,9 @@ interface PaymentCardProps {
   valueProposition?: string;
   dailyEquivalent?: string;
   isPrimary?: boolean;
+  isBestValue?: boolean;
   showCompactView?: boolean;
+  features?: string[];
 }
 
 const PaymentCard: React.FC<PaymentCardProps> = ({
@@ -30,7 +32,9 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
   valueProposition,
   dailyEquivalent,
   isPrimary = false,
+  isBestValue = false,
   showCompactView = false,
+  features = [],
 }) => {
   const installmentAmount = totalPrice / installments;
   
@@ -65,11 +69,20 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
     >
       <div className="flex items-start justify-between">
         <h3 className="text-2xl font-semibold text-white mb-2">{title}</h3>
-        {isSelected && (
-          <div className="bg-accent-red text-white text-xs font-medium py-1 px-3 rounded-full">
-            Selected
-          </div>
-        )}
+        <div className="flex items-center">
+          {isSelected && (
+            <div className="bg-accent-red text-white text-xs font-medium py-1 px-3 rounded-full mr-2">
+              Selected
+            </div>
+          )}
+          
+          {isBestValue && (
+            <div className="bg-accent-red text-white text-xs font-medium py-1 px-3 rounded-full flex items-center">
+              <Badge className="h-3 w-3 mr-1" />
+              Best Value
+            </div>
+          )}
+        </div>
       </div>
       
       <div className="text-3xl font-bold text-white mb-1">
@@ -102,16 +115,24 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
         </div>
       )}
       
-      {dailyEquivalent && !showCompactView && (
+      {/* Daily equivalent only shown for upfront plan, as requested */}
+      {dailyEquivalent && installments === 1 && !showCompactView && (
         <div className="text-gray-300 text-base mb-3">
           {dailyEquivalent}
         </div>
       )}
       
-      {/* Only show the daily equivalent as small text when in compact view */}
-      {dailyEquivalent && showCompactView && (
-        <div className="text-gray-400 text-xs mb-3">
-          {dailyEquivalent}
+      {/* Feature list section */}
+      {features && features.length > 0 && (
+        <div className="mt-4 mb-2">
+          {features.map((feature, index) => (
+            <div key={index} className="flex items-center mt-2">
+              <CheckCircle className="h-4 w-4 text-accent-red mr-2 flex-shrink-0" />
+              <span className="text-white text-sm">
+                {feature}
+              </span>
+            </div>
+          ))}
         </div>
       )}
       

@@ -11,6 +11,7 @@ interface PaymentFormProps {
     title: string;
     totalPrice: number;
     installments: number;
+    isBestValue?: boolean;
   } | null;
 }
 
@@ -106,7 +107,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ selectedPlan }) => {
     if (!selectedPlan) return "";
     
     if (selectedPlan.installments === 1) {
-      return `${selectedPlan.title} - $${selectedPlan.totalPrice.toLocaleString()} one-time payment`;
+      return `${selectedPlan.title} - $${selectedPlan.totalPrice.toLocaleString()} one-time payment ${selectedPlan.isBestValue ? '(Best Value!)' : ''}`;
     } else if (selectedPlan.installments === 6) {
       const monthlyAmount = selectedPlan.totalPrice / selectedPlan.installments;
       return `${selectedPlan.title} - $${monthlyAmount.toLocaleString()} first month payment`;

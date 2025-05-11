@@ -7,7 +7,7 @@ import PaymentForm from "@/components/PaymentForm";
 import ProgramBenefits from "@/components/ProgramBenefits";
 import Testimonials from "@/components/Testimonials";
 import TrustIndicators from "@/components/TrustIndicators";
-import { Info } from "lucide-react";
+import { Info, Badge } from "lucide-react";
 import ProgramValueSection from "@/components/ProgramValueSection";
 
 const Index = () => {
@@ -20,26 +20,27 @@ const Index = () => {
   const primaryPlans = [
     {
       id: 1,
-      title: "Pay Upfront & Save",
+      title: "6-Month Plan (One-Time Payment)",
       totalPrice: 4500,
       installments: 1,
       daysInPlan: 180,
       benefit: "Priority Onboarding & Setup",
       isPrimary: true,
       description: "One-time payment for full program access",
-      valueProposition: "Save $4,500 compared to monthly payments!",
-      dailyEquivalent: "$25/day for guaranteed results"
+      valueProposition: "Save 50% vs. monthly payments",
+      isBestValue: true,
+      features: ["Full 6-month program access", "Priority Onboarding & Setup"]
     },
     {
       id: 2,
-      title: "Flexible Monthly",
+      title: "6-Month Plan (Monthly Billing)",
       totalPrice: 9000, // Total cost for monthly plan
       installments: 6,
       daysInPlan: 180,
       isPrimary: true,
       description: "$1,500 per month for 6 months",
-      valueProposition: "Easy monthly payments",
-      dailyEquivalent: "$50/day for guaranteed results"
+      valueProposition: "No discount",
+      features: ["Full 6-month program access"]
     }
   ];
 
@@ -50,25 +51,25 @@ const Index = () => {
     // Additional installment options with updated pricing
     {
       id: 3,
-      title: "2 Installments",
+      title: "2-Payment Plan",
       totalPrice: 5000,
       installments: 2,
       daysInPlan: 180,
       isPrimary: false,
-      description: "First payment today, second in 30 days",
-      valueProposition: "Save $4,000 vs. standard monthly!",
-      dailyEquivalent: "$27.78/day"
+      description: "2 × $2,500 (today & 30 days)",
+      valueProposition: "Save 44% vs. monthly payments",
+      features: ["Full 6-month program access"]
     },
     {
       id: 4,
-      title: "3 Installments",
+      title: "3-Payment Plan",
       totalPrice: 5400,
       installments: 3,
       daysInPlan: 180,
       isPrimary: false,
-      description: "First payment today, then monthly for 2 months",
-      valueProposition: "Save $3,600 vs. standard monthly!",
-      dailyEquivalent: "$30/day"
+      description: "3 × $1,800 (today, 30 days, 60 days)",
+      valueProposition: "Save 40% vs. monthly payments",
+      features: ["Full 6-month program access"]
     }
   ];
 
@@ -160,8 +161,9 @@ const Index = () => {
               benefit={plan.benefit}
               description={plan.description}
               valueProposition={plan.valueProposition}
-              dailyEquivalent={plan.dailyEquivalent}
+              features={plan.features}
               isPrimary={plan.isPrimary}
+              isBestValue={plan.isBestValue}
               isSelected={selectedPlanId === plan.id}
               onClick={() => setSelectedPlanId(plan.id)}
               showCompactView={showAllOptions}
