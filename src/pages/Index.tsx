@@ -106,7 +106,11 @@ const Index = () => {
     }
     
     if (selectedPlan.id === 1) {
-      return <span className="font-semibold">Your $4,500 setup investment</span> = " averages to just $25/day over 6 months for guaranteed results!";
+      return (
+        <>
+          <span className="font-semibold">Your $4,500 setup investment</span> averages to just $25/day over 6 months for guaranteed results!
+        </>
+      );
     } else if (selectedPlan.id === 2) {
       return "Our Flexible Monthly option gives you peace of mind with manageable payments";
     } else {
