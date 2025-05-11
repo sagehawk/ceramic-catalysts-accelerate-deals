@@ -102,6 +102,20 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ selectedPlan }) => {
     }
   };
 
+  const getSelectedPlanText = () => {
+    if (!selectedPlan) return "";
+    
+    if (selectedPlan.installments === 1) {
+      return `${selectedPlan.title} - $${selectedPlan.totalPrice.toLocaleString()} one-time payment`;
+    } else if (selectedPlan.installments === 6) {
+      const monthlyAmount = selectedPlan.totalPrice / selectedPlan.installments;
+      return `${selectedPlan.title} - $${monthlyAmount.toLocaleString()} first month payment`;
+    } else {
+      const installmentAmount = selectedPlan.totalPrice / selectedPlan.installments;
+      return `${selectedPlan.title} - $${installmentAmount.toLocaleString()} first payment`;
+    }
+  };
+
   return (
     <div className="bg-charcoal rounded-2xl shadow-lg p-8 w-full max-w-lg mx-auto">
       <div className="flex items-center mb-6">
@@ -112,12 +126,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ selectedPlan }) => {
       {selectedPlan && (
         <div className="bg-slate bg-opacity-70 p-4 rounded-xl mb-6">
           <p className="text-white">
-            <span className="font-medium">Selected plan:</span> {selectedPlan.title}
-            {selectedPlan.installments === 6 ? 
-              ` - $${(selectedPlan.totalPrice / selectedPlan.installments).toLocaleString()}/month for 6 months` : 
-              selectedPlan.installments > 1 ?
-              ` - ${selectedPlan.installments} payments of $${(selectedPlan.totalPrice / selectedPlan.installments).toLocaleString()}` :
-              ` - $${selectedPlan.totalPrice.toLocaleString()} one-time payment`}
+            <span className="font-medium">Selected plan:</span> {getSelectedPlanText()}
           </p>
         </div>
       )}

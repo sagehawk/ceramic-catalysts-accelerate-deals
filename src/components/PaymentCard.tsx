@@ -15,6 +15,7 @@ interface PaymentCardProps {
   valueProposition?: string;
   dailyEquivalent?: string;
   isPrimary?: boolean;
+  showCompactView?: boolean;
 }
 
 const PaymentCard: React.FC<PaymentCardProps> = ({
@@ -29,6 +30,7 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
   valueProposition,
   dailyEquivalent,
   isPrimary = false,
+  showCompactView = false,
 }) => {
   const installmentAmount = totalPrice / installments;
   
@@ -44,6 +46,7 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
     <div
       className={cn(
         "bg-slate p-6 rounded-2xl shadow-lg cursor-pointer transition-all duration-300",
+        showCompactView ? "flex flex-col" : "",
         isPrimary ? "bg-gradient-to-b from-slate to-charcoal" : "bg-slate/80",
         isSelected 
           ? "border-accent-red border-[3px] bg-opacity-90 shadow-xl transform scale-[1.02] ring-2 ring-accent-red ring-opacity-50 animate-red-glow" 
@@ -99,8 +102,15 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
         </div>
       )}
       
-      {dailyEquivalent && (
-        <div className="text-gray-300 text-sm mb-3 text-base">
+      {dailyEquivalent && !showCompactView && (
+        <div className="text-gray-300 text-base mb-3">
+          {dailyEquivalent}
+        </div>
+      )}
+      
+      {/* Only show the daily equivalent as small text when in compact view */}
+      {dailyEquivalent && showCompactView && (
+        <div className="text-gray-400 text-xs mb-3">
           {dailyEquivalent}
         </div>
       )}

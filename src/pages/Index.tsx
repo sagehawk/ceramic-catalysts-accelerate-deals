@@ -47,28 +47,28 @@ const Index = () => {
   const allPlans = [
     // Include primary plans
     ...primaryPlans,
-    // Additional installment options
+    // Additional installment options with updated pricing
     {
       id: 3,
       title: "2 Installments",
-      totalPrice: 4600,
+      totalPrice: 5000,
       installments: 2,
       daysInPlan: 180,
       isPrimary: false,
       description: "First payment today, second in 30 days",
-      valueProposition: "Save $4,400 vs. standard monthly!",
-      dailyEquivalent: "$25.56/day"
+      valueProposition: "Save $4,000 vs. standard monthly!",
+      dailyEquivalent: "$27.78/day"
     },
     {
       id: 4,
       title: "3 Installments",
-      totalPrice: 4650,
+      totalPrice: 5400,
       installments: 3,
       daysInPlan: 180,
       isPrimary: false,
       description: "First payment today, then monthly for 2 months",
-      valueProposition: "Save $4,350 vs. standard monthly!",
-      dailyEquivalent: "$25.83/day"
+      valueProposition: "Save $3,600 vs. standard monthly!",
+      dailyEquivalent: "$30/day"
     }
   ];
 
@@ -99,6 +99,21 @@ const Index = () => {
     }, 300);
   };
 
+  // Get dynamic subheader text based on selected plan
+  const getDynamicSubheader = () => {
+    if (!selectedPlan) {
+      return "Choose the investment model that works best for your business";
+    }
+    
+    if (selectedPlan.id === 1) {
+      return <span className="font-semibold">Your $4,500 setup investment</span> = " averages to just $25/day over 6 months for guaranteed results!";
+    } else if (selectedPlan.id === 2) {
+      return "Our Flexible Monthly option gives you peace of mind with manageable payments";
+    } else {
+      return "Installment plans offer flexibility while still saving significantly compared to monthly";
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-charcoal to-slate text-white px-4 py-8">
       {/* Logo Header */}
@@ -114,21 +129,11 @@ const Index = () => {
         </p>
         
         {/* Dynamic value proposition based on selection */}
-        {!selectedPlan && (
-          <div className="bg-slate bg-opacity-50 p-4 rounded-xl mb-8 max-w-3xl">
-            <p className="text-lg text-white">
-              Choose the investment model that works best for your business
-            </p>
-          </div>
-        )}
-        
-        {selectedPlan && selectedPlan.id === 1 && (
-          <div className="bg-slate bg-opacity-50 p-4 rounded-xl mb-8 max-w-3xl">
-            <p className="text-lg text-white">
-              <span className="font-semibold">Your $4,500 setup investment</span> averages to just $25/day over 6 months for guaranteed results!
-            </p>
-          </div>
-        )}
+        <div className="bg-slate bg-opacity-50 p-4 rounded-xl mb-8 max-w-3xl">
+          <p className="text-lg text-white">
+            {getDynamicSubheader()}
+          </p>
+        </div>
       </div>
 
       {/* Program Benefits */}
@@ -140,7 +145,7 @@ const Index = () => {
           {showAllOptions ? "Choose Your Payment Option" : "Select Your Investment Model"}
         </h2>
         
-        <div className={`grid grid-cols-1 md:grid-cols-${visiblePlans.length > 2 ? '2' : visiblePlans.length} lg:grid-cols-${visiblePlans.length > 2 ? allPlans.length / 2 : visiblePlans.length} gap-6 mb-4 transition-opacity duration-300 ease-in-out ${isAnimating ? "opacity-0" : "opacity-100"}`}>
+        <div className={`grid grid-cols-1 gap-6 mb-4 transition-opacity duration-300 ease-in-out ${isAnimating ? "opacity-0" : "opacity-100"}`}>
           {visiblePlans.map((plan) => (
             <PaymentCard
               key={plan.id}
@@ -155,11 +160,12 @@ const Index = () => {
               isPrimary={plan.isPrimary}
               isSelected={selectedPlanId === plan.id}
               onClick={() => setSelectedPlanId(plan.id)}
+              showCompactView={showAllOptions}
             />
           ))}
         </div>
         
-        <div className="flex justify-center mt-6">
+        <div className="flex justify-center mt-8">
           <Button 
             variant="default"
             onClick={handleToggleOptions}
