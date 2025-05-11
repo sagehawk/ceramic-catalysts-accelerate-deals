@@ -1,23 +1,21 @@
 
 import React from 'react';
-import { cn } from '@/lib/utils';
-import { CheckCircle, Badge } from 'lucide-react';
+import { Check } from 'lucide-react';
 
 interface PaymentCardProps {
   title: string;
   totalPrice: number;
   installments: number;
   daysInPlan: number;
-  isSelected: boolean;
-  onClick: () => void;
   benefit?: string;
+  isPrimary?: boolean;
   description?: string;
   valueProposition?: string;
-  dailyEquivalent?: string;
-  isPrimary?: boolean;
   isBestValue?: boolean;
-  showCompactView?: boolean;
   features?: string[];
+  isSelected: boolean;
+  onClick: () => void;
+  showCompactView?: boolean;
 }
 
 const PaymentCard: React.FC<PaymentCardProps> = ({
@@ -25,125 +23,101 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
   totalPrice,
   installments,
   daysInPlan,
-  isSelected,
-  onClick,
   benefit,
+  isPrimary,
   description,
   valueProposition,
-  dailyEquivalent,
-  isPrimary = false,
-  isBestValue = false,
+  isBestValue,
+  features,
+  isSelected,
+  onClick,
   showCompactView = false,
-  features = [],
 }) => {
-  const installmentAmount = totalPrice / installments;
+  // Calculate the price per installment
+  const installmentPrice = totalPrice / installments;
   
-  // For monthly payments (installments === 6), we want to emphasize the monthly amount
-  const displayAmount = installments === 6 
-    ? `$${installmentAmount.toLocaleString()}/mo`
-    : `$${totalPrice.toLocaleString()}`;
-  
-  // For installment plans (2+ payments, but not the monthly plan)
-  const isInstallmentPlan = installments > 1 && installments !== 6;
-
   return (
-    <div
-      className={cn(
-        "bg-slate p-6 rounded-2xl shadow-lg cursor-pointer transition-all duration-300",
-        showCompactView ? "flex flex-col" : "",
-        isPrimary ? "bg-gradient-to-b from-slate to-charcoal" : "bg-slate/80",
-        isSelected 
-          ? "border-accent-red border-[3px] bg-opacity-90 shadow-xl transform scale-[1.02] ring-2 ring-accent-red ring-opacity-50 animate-red-glow" 
-          : "border-transparent border-2 hover:border-accent-red hover:border-opacity-70"
-      )}
-      onClick={onClick}
-      tabIndex={0}
-      role="button"
-      aria-pressed={isSelected}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onClick();
+    <div 
+      className={`
+        relative rounded-xl p-6 transition-all duration-300 cursor-pointer
+        ${isSelected 
+          ? 'bg-slate border-2 border-accent-red shadow-lg transform scale-[1.01]' 
+          : 'bg-slate/80 border border-gray-700 hover:border-accent-red hover:bg-slate'
         }
-      }}
+      `}
+      onClick={onClick}
     >
-      <div className="flex items-start justify-between">
-        <h3 className="text-2xl font-semibold text-white mb-2">{title}</h3>
-        <div className="flex items-center">
-          {isSelected && (
-            <div className="bg-accent-red text-white text-xs font-medium py-1 px-3 rounded-full mr-2">
-              Selected
+      {/* Best Value Badge */}
+      {isBestValue && (
+        <div className="absolute -top-3 -right-3 bg-accent-red text-white px-4 py-1 rounded-full font-semibold text-sm shadow-md">
+          🔥 Best Value
+        </div>
+      )}
+
+      {/* Selected Indicator */}
+      {isSelected && (
+        <div className="absolute top-4 right-4 bg-accent-red/20 rounded-full p-1">
+          <Check className="h-5 w-5 text-accent-red" />
+        </div>
+      )}
+
+      <div className="flex flex-col h-full">
+        <h3 className="text-xl font-semibold text-white mb-2">{title}</h3>
+        
+        {/* Pricing Information */}
+        {installments === 1 ? (
+          <div className="mb-4">
+            <div className="flex items-baseline">
+              <span className="text-3xl font-bold text-white">${totalPrice.toLocaleString()}</span>
+              <span className="text-gray-400 ml-2">one-time payment</span>
             </div>
-          )}
-          
-          {isBestValue && (
-            <div className="bg-accent-red text-white text-xs font-medium py-1 px-3 rounded-full flex items-center">
-              <Badge className="h-3 w-3 mr-1" />
-              Best Value
+            <p className="text-gray-400 text-sm mt-1">{description}</p>
+          </div>
+        ) : installments === 6 ? (
+          <div className="mb-4">
+            <div className="flex items-baseline">
+              <span className="text-3xl font-bold text-white">${installmentPrice.toLocaleString()}</span>
+              <span className="text-gray-400 ml-2">/month for 6 months</span>
             </div>
-          )}
-        </div>
-      </div>
-      
-      <div className="text-3xl font-bold text-white mb-1">
-        {displayAmount}
-      </div>
-      
-      {isInstallmentPlan && (
-        <div className="text-white text-lg font-medium mb-2">
-          {installments} payments of ${installmentAmount.toLocaleString()}
-        </div>
-      )}
-      
-      {installments === 6 && (
-        <div className="text-white text-lg font-medium mb-2">
-          Total: ${totalPrice.toLocaleString()} over 6 months
-        </div>
-      )}
-      
-      {description && (
-        <div className="text-white text-sm mb-3">
-          {description}
-        </div>
-      )}
-      
-      {valueProposition && (
-        <div className="flex items-center mb-3 bg-accent-red bg-opacity-20 py-2 px-3 rounded-lg">
-          <span className="text-white text-sm font-medium">
+            <p className="text-gray-400 text-sm mt-1">Total: ${totalPrice.toLocaleString()}</p>
+          </div>
+        ) : (
+          <div className="mb-4">
+            <div className="flex items-baseline">
+              <span className="text-3xl font-bold text-white">${installmentPrice.toLocaleString()}</span>
+              <span className="text-gray-400 ml-2">× {installments} payments</span>
+            </div>
+            <p className="text-gray-400 text-sm mt-1">Total: ${totalPrice.toLocaleString()} {description}</p>
+          </div>
+        )}
+        
+        {/* Value Proposition */}
+        {valueProposition && (
+          <div className={`
+            mb-4 py-2 px-3 rounded-lg text-sm font-medium
+            ${valueProposition.includes('Save') 
+              ? 'bg-green-900/30 text-green-400' 
+              : 'bg-blue-900/30 text-blue-300'
+            }
+          `}>
             {valueProposition}
-          </span>
-        </div>
-      )}
-      
-      {/* Daily equivalent only shown for upfront plan, as requested */}
-      {dailyEquivalent && installments === 1 && !showCompactView && (
-        <div className="text-gray-300 text-base mb-3">
-          {dailyEquivalent}
-        </div>
-      )}
-      
-      {/* Feature list section */}
-      {features && features.length > 0 && (
-        <div className="mt-4 mb-2">
-          {features.map((feature, index) => (
-            <div key={index} className="flex items-center mt-2">
-              <CheckCircle className="h-4 w-4 text-accent-red mr-2 flex-shrink-0" />
-              <span className="text-white text-sm">
-                {feature}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
-      
-      {benefit && (
-        <div className="flex items-center mt-3 mb-2 bg-accent-red bg-opacity-10 py-2 px-3 rounded-lg">
-          <CheckCircle className="h-4 w-4 text-accent-red mr-2" />
-          <span className="text-white text-sm font-medium">
-            {benefit}
-          </span>
-        </div>
-      )}
+          </div>
+        )}
+        
+        {/* Features */}
+        {features && features.length > 0 && (
+          <div className="mt-auto">
+            <ul className="space-y-2">
+              {features.map((feature, index) => (
+                <li key={index} className="flex items-start">
+                  <Check className="h-4 w-4 text-accent-red mr-2 mt-0.5 flex-shrink-0" />
+                  <span className="text-gray-300 text-sm">{feature}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
