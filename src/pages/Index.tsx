@@ -48,9 +48,10 @@ const Index = () => {
 
   // All plan options (shown when "See All Options" is clicked)
   const allPlans = [
-    // Include primary plans
-    ...primaryPlans,
-    // Additional installment options with updated pricing
+    // Include primary plans first (best value)
+    primaryPlans[0], // One-time payment (Best value - 50% savings)
+    
+    // Then installment plans in order of savings
     {
       id: 3,
       title: "2-Payment Plan",
@@ -72,7 +73,10 @@ const Index = () => {
       description: "3 × $1,800 (today, 30 days, 60 days)",
       valueProposition: "Save 40% vs. monthly payments",
       features: ["Full 6-month program access"]
-    }
+    },
+    
+    // Lastly, the monthly plan (no discount)
+    primaryPlans[1] // Monthly plan (moved to the end as it has no discount)
   ];
 
   // Set initial visible plans to show primary plans
