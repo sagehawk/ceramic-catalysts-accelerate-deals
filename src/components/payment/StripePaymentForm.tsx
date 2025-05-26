@@ -1,20 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CreditCard, Lock, ArrowLeft, Loader } from 'lucide-react';
-import { loadStripe } from '@stripe/stripe-js';
-import {
-  CardElement,
-  Elements,
-  useStripe,
-  useElements
-} from '@stripe/react-stripe-js';
-
-// Initialize Stripe with your publishable key
-const stripePromise = loadStripe('pk_test_your_publishable_key');
 
 interface Plan {
   id: number;
@@ -29,68 +19,63 @@ interface StripePaymentFormProps {
   onBackClick: () => void;
 }
 
-// Inner form component that uses Stripe hooks
-const CheckoutForm = ({ selectedPlan, onBackClick }: StripePaymentFormProps) => {
+// For now, we'll use a simplified form without Stripe Elements
+// This can be upgraded to use Stripe Elements when you have your Stripe keys configured
+const StripePaymentForm: React.FC<StripePaymentFormProps> = ({ selectedPlan, onBackClick }) => {
   const { toast } = useToast();
-  const stripe = useStripe();
-  const elements = useElements();
   
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
+    cardNumber: '',
+    expiry: '',
+    cvc: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [cardError, setCardError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    
+    // Format card number with spaces
+    if (name === 'cardNumber') {
+      const formatted = value.replace(/\s/g, '').replace(/(\d{4})/g, '$1 ').trim();
+      setFormData({
+        ...formData,
+        [name]: formatted.substring(0, 19), // limit to 16 digits + 3 spaces
+      });
+      return;
+    }
+    
+    // Format expiry date
+    if (name === 'expiry') {
+      const formatted = value.replace(/\D/g, '');
+      if (formatted.length <= 2) {
+        setFormData({ ...formData, [name]: formatted });
+      } else {
+        setFormData({
+          ...formData,
+          [name]: `${formatted.substring(0, 2)}/${formatted.substring(2, 4)}`,
+        });
+      }
+      return;
+    }
+    
     setFormData({ ...formData, [name]: value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!stripe || !elements || !selectedPlan) {
+    if (!selectedPlan) {
       toast({
         title: "Error",
-        description: "Please select a payment plan and ensure Stripe is loaded.",
+        description: "Please select a payment plan.",
         variant: "destructive",
       });
       return;
     }
     
     setIsSubmitting(true);
-    
-    // Get card element
-    const cardElement = elements.getElement(CardElement);
-    if (!cardElement) {
-      setIsSubmitting(false);
-      toast({
-        title: "Error",
-        description: "Card element not found.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Create payment method
-    const { error, paymentMethod } = await stripe.createPaymentMethod({
-      type: 'card',
-      card: cardElement,
-      billing_details: {
-        name: formData.fullName,
-        email: formData.email,
-      }
-    });
-
-    if (error) {
-      setIsSubmitting(false);
-      setCardError(error.message || 'An error occurred with your payment method.');
-      return;
-    }
-
-    // Here you would normally send this paymentMethod.id to your server
-    // For now, we'll simulate a successful payment
     
     // Simulate payment processing
     setTimeout(() => {
@@ -104,9 +89,10 @@ const CheckoutForm = ({ selectedPlan, onBackClick }: StripePaymentFormProps) => 
       setFormData({
         fullName: '',
         email: '',
+        cardNumber: '',
+        expiry: '',
+        cvc: '',
       });
-      cardElement.clear();
-      setCardError('');
     }, 1500);
   };
 
@@ -196,27 +182,45 @@ const CheckoutForm = ({ selectedPlan, onBackClick }: StripePaymentFormProps) => 
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="card-element" className="text-text-secondary">Card Details</Label>
-          <div className="bg-slate border border-gray-700 rounded-md p-3 focus-within:ring-1 focus-within:ring-accent-red">
-            <CardElement
-              id="card-element"
-              options={{
-                style: {
-                  base: {
-                    fontSize: '16px',
-                    color: '#FFFFFF',
-                    '::placeholder': {
-                      color: 'rgba(156, 163, 175, 0.7)',
-                    },
-                  },
-                  invalid: {
-                    color: '#EF4444',
-                  },
-                },
-              }}
+          <Label htmlFor="cardNumber" className="text-text-secondary">Card Number</Label>
+          <Input
+            id="cardNumber"
+            name="cardNumber"
+            value={formData.cardNumber}
+            onChange={handleChange}
+            required
+            placeholder="4242 4242 4242 4242"
+            className="bg-slate border-gray-700 text-white placeholder:text-gray-500"
+          />
+        </div>
+        
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="expiry" className="text-text-secondary">Expiry Date</Label>
+            <Input
+              id="expiry"
+              name="expiry"
+              value={formData.expiry}
+              onChange={handleChange}
+              required
+              placeholder="MM/YY"
+              className="bg-slate border-gray-700 text-white placeholder:text-gray-500"
             />
           </div>
-          {cardError && <p className="text-red-500 text-sm mt-1">{cardError}</p>}
+          
+          <div className="space-y-2">
+            <Label htmlFor="cvc" className="text-text-secondary">CVC</Label>
+            <Input
+              id="cvc"
+              name="cvc"
+              value={formData.cvc}
+              onChange={handleChange}
+              required
+              placeholder="123"
+              maxLength={3}
+              className="bg-slate border-gray-700 text-white placeholder:text-gray-500"
+            />
+          </div>
         </div>
         
         <div className="flex items-center pt-2">
@@ -227,7 +231,7 @@ const CheckoutForm = ({ selectedPlan, onBackClick }: StripePaymentFormProps) => 
         <Button
           type="submit"
           className={`w-full py-6 bg-accent-red hover:bg-accent-red/90 transition-all duration-300 text-white font-medium rounded-xl shadow text-lg mt-4 ${selectedPlan ? 'animate-red-glow' : ''}`}
-          disabled={isSubmitting || !stripe || !selectedPlan}
+          disabled={isSubmitting || !selectedPlan}
         >
           {isSubmitting ? (
             <span className="flex items-center justify-center">
@@ -238,15 +242,6 @@ const CheckoutForm = ({ selectedPlan, onBackClick }: StripePaymentFormProps) => 
         </Button>
       </form>
     </div>
-  );
-};
-
-// Wrapper component that provides the Stripe context
-const StripePaymentForm: React.FC<StripePaymentFormProps> = (props) => {
-  return (
-    <Elements stripe={stripePromise}>
-      <CheckoutForm {...props} />
-    </Elements>
   );
 };
 
