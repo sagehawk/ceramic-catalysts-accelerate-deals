@@ -66,91 +66,93 @@ const MultiStepEnrollment: React.FC<MultiStepEnrollmentProps> = ({ allPlans, pri
               Get 90+ high-value jobs in 6 months - guaranteed
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              {visiblePlans.map((plan) => (
-                <div
-                  key={plan.id}
-                  onClick={() => setSelectedPlanId(plan.id)}
-                  className={`
-                    relative p-8 rounded-2xl cursor-pointer transition-all duration-300
-                    ${selectedPlanId === plan.id 
-                      ? 'bg-slate border-2 border-accent-red transform scale-105' 
-                      : 'bg-slate/80 border border-gray-700 hover:border-accent-red hover:scale-102'
-                    }
-                  `}
-                >
-                  {plan.isBestValue && (
-                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-accent-red text-white px-6 py-2 rounded-full font-bold text-sm">
-                      BEST VALUE
-                    </div>
-                  )}
-                  
-                  <h3 className="text-2xl font-bold text-white mb-4">{plan.title}</h3>
-                  
-                  <div className="mb-6">
-                    {plan.installments === 1 ? (
-                      <div className="text-center">
-                        <div className="text-4xl font-bold text-white">${plan.totalPrice.toLocaleString()}</div>
-                        <div className="text-gray-400">one-time payment</div>
+            <div className="max-w-2xl mx-auto mb-8">
+              <div className={`grid gap-6 mb-8 ${showAllPlans ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 max-w-md mx-auto'}`}>
+                {visiblePlans.map((plan) => (
+                  <div
+                    key={plan.id}
+                    onClick={() => setSelectedPlanId(plan.id)}
+                    className={`
+                      relative p-8 rounded-2xl cursor-pointer transition-all duration-300
+                      ${selectedPlanId === plan.id 
+                        ? 'bg-slate border-2 border-accent-red transform scale-105' 
+                        : 'bg-slate/80 border border-gray-700 hover:border-accent-red hover:scale-102'
+                      }
+                    `}
+                  >
+                    {plan.isBestValue && (
+                      <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-accent-red text-white px-6 py-2 rounded-full font-bold text-sm">
+                        BEST VALUE
                       </div>
-                    ) : (
-                      <div className="text-center">
-                        <div className="text-4xl font-bold text-white">
-                          ${Math.round(plan.totalPrice / plan.installments).toLocaleString()}
+                    )}
+                    
+                    <h3 className="text-2xl font-bold text-white mb-4">{plan.title}</h3>
+                    
+                    <div className="mb-6">
+                      {plan.installments === 1 ? (
+                        <div className="text-center">
+                          <div className="text-4xl font-bold text-white">${plan.totalPrice.toLocaleString()}</div>
+                          <div className="text-gray-400">one-time payment</div>
                         </div>
-                        <div className="text-gray-400">
-                          {plan.installments === 6 ? '/month' : `× ${plan.installments} payments`}
+                      ) : (
+                        <div className="text-center">
+                          <div className="text-4xl font-bold text-white">
+                            ${Math.round(plan.totalPrice / plan.installments).toLocaleString()}
+                          </div>
+                          <div className="text-gray-400">
+                            {plan.installments === 6 ? '/month' : `× ${plan.installments} payments`}
+                          </div>
+                          <div className="text-sm text-gray-500 mt-1">
+                            Total: ${plan.totalPrice.toLocaleString()}
+                          </div>
                         </div>
-                        <div className="text-sm text-gray-500 mt-1">
-                          Total: ${plan.totalPrice.toLocaleString()}
-                        </div>
+                      )}
+                    </div>
+
+                    {plan.valueProposition && (
+                      <div className={`
+                        text-center py-2 px-4 rounded-lg text-sm font-medium mb-4
+                        ${plan.valueProposition.includes('Save') 
+                          ? 'bg-green-900/30 text-green-400' 
+                          : 'bg-gray-900/30 text-gray-300'
+                        }
+                      `}>
+                        {plan.valueProposition}
+                      </div>
+                    )}
+
+                    {selectedPlanId === plan.id && (
+                      <div className="absolute top-4 right-4 w-6 h-6 bg-accent-red rounded-full flex items-center justify-center">
+                        <div className="w-3 h-3 bg-white rounded-full"></div>
                       </div>
                     )}
                   </div>
+                ))}
+              </div>
 
-                  {plan.valueProposition && (
-                    <div className={`
-                      text-center py-2 px-4 rounded-lg text-sm font-medium mb-4
-                      ${plan.valueProposition.includes('Save') 
-                        ? 'bg-green-900/30 text-green-400' 
-                        : 'bg-gray-900/30 text-gray-300'
-                      }
-                    `}>
-                      {plan.valueProposition}
-                    </div>
-                  )}
+              {!showAllPlans && (
+                <button
+                  onClick={() => setShowAllPlans(true)}
+                  className="text-accent-red hover:text-accent-red/80 underline mb-8 transition-colors"
+                >
+                  Show more payment options
+                </button>
+              )}
 
-                  {selectedPlanId === plan.id && (
-                    <div className="absolute top-4 right-4 w-6 h-6 bg-accent-red rounded-full flex items-center justify-center">
-                      <div className="w-3 h-3 bg-white rounded-full"></div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            {!showAllPlans && (
               <button
-                onClick={() => setShowAllPlans(true)}
-                className="text-accent-red hover:text-accent-red/80 underline mb-8 transition-colors"
+                onClick={handleContinueToPayment}
+                disabled={!selectedPlanId}
+                className={`
+                  px-12 py-4 text-xl font-bold rounded-xl transition-all duration-300 w-full max-w-md
+                  ${selectedPlanId 
+                    ? 'bg-accent-red hover:bg-accent-red/90 text-white shadow-lg hover:shadow-xl' 
+                    : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                  }
+                `}
               >
-                Show more payment options
+                Continue to Payment
               </button>
-            )}
-
-            <button
-              onClick={handleContinueToPayment}
-              disabled={!selectedPlanId}
-              className={`
-                px-12 py-4 text-xl font-bold rounded-xl transition-all duration-300
-                ${selectedPlanId 
-                  ? 'bg-accent-red hover:bg-accent-red/90 text-white shadow-lg hover:shadow-xl' 
-                  : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                }
-              `}
-            >
-              Continue to Payment
-            </button>
+            </div>
           </motion.div>
         ) : (
           <motion.div
