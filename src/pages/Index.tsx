@@ -13,6 +13,7 @@ const Index = () => {
       daysInPlan: 180,
       valueProposition: "Save 50% vs. monthly payments",
       isBestValue: true,
+      costPerJob: 50,
     },
     {
       id: 3,
@@ -21,6 +22,7 @@ const Index = () => {
       installments: 2,
       daysInPlan: 180,
       valueProposition: "Save 44% vs. monthly payments",
+      costPerJob: 56,
     },
     {
       id: 4,
@@ -29,6 +31,7 @@ const Index = () => {
       installments: 3,
       daysInPlan: 180,
       valueProposition: "Save 40% vs. monthly payments",
+      costPerJob: 60,
     },
     {
       id: 2,
@@ -37,6 +40,7 @@ const Index = () => {
       installments: 6,
       daysInPlan: 180,
       valueProposition: "Maximum Flexibility",
+      costPerJob: 100,
     }
   ];
 
