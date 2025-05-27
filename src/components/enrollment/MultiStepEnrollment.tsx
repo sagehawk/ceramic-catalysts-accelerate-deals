@@ -1,12 +1,8 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PlanSelection from './PlanSelection';
 import StripePaymentForm from '../payment/StripePaymentForm';
-import ProgramValueSection from '../ProgramValueSection';
-import Testimonials from '../Testimonials';
-import TrustIndicators from '../TrustIndicators';
-import AdSpendNotice from './AdSpendNotice';
 
 interface Plan {
   id: number;
@@ -30,42 +26,15 @@ interface MultiStepEnrollmentProps {
 const MultiStepEnrollment: React.FC<MultiStepEnrollmentProps> = ({ allPlans, primaryPlans }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
-  const [showAllOptions, setShowAllOptions] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [visiblePlans, setVisiblePlans] = useState<Plan[]>([]);
 
   // Find the selected plan from all available plans
   const selectedPlan = selectedPlanId 
     ? allPlans.find(plan => plan.id === selectedPlanId) || null
     : null;
 
-  // Set initial visible plans to show primary plans
-  useEffect(() => {
-    setVisiblePlans([...primaryPlans]);
-  }, [primaryPlans]);
-
-  const handleToggleOptions = () => {
-    setIsAnimating(true);
-    
-    setTimeout(() => {
-      if (showAllOptions) {
-        setVisiblePlans([...primaryPlans]);
-      } else {
-        setVisiblePlans([...allPlans]);
-      }
-      
-      setShowAllOptions(!showAllOptions);
-      
-      setTimeout(() => {
-        setIsAnimating(false);
-      }, 300);
-    }, 300);
-  };
-
   const handleContinueToPayment = () => {
     if (selectedPlanId) {
       setCurrentStep(2);
-      // Scroll to top of page
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
@@ -74,27 +43,8 @@ const MultiStepEnrollment: React.FC<MultiStepEnrollmentProps> = ({ allPlans, pri
     setCurrentStep(1);
   };
 
-  // Get dynamic subheader text based on selected plan
-  const getDynamicSubheader = () => {
-    if (!selectedPlan) {
-      return "Choose the investment model that works best for your business";
-    }
-    
-    if (selectedPlan.id === 1) {
-      return (
-        <>
-          <span className="font-semibold">Your $4,500 setup investment</span> averages to just $25/day over 6 months for guaranteed results!
-        </>
-      );
-    } else if (selectedPlan.id === 2) {
-      return "Our Flexible Monthly option gives you peace of mind with manageable payments";
-    } else {
-      return "Installment plans offer flexibility while still saving significantly compared to monthly";
-    }
-  };
-
   return (
-    <div className="container mx-auto max-w-5xl mb-10">
+    <div className="container mx-auto max-w-4xl">
       <AnimatePresence mode="wait">
         {currentStep === 1 ? (
           <motion.div
@@ -102,42 +52,92 @@ const MultiStepEnrollment: React.FC<MultiStepEnrollmentProps> = ({ allPlans, pri
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.3 }}
+            className="text-center"
           >
-            <h2 className="text-3xl font-bold text-white mb-4 text-center">
-              Secure Your Spot: The 90-Job Guarantee Program
-            </h2>
-            <p className="text-xl text-center text-gray-300 mb-8">
-              Let's Get You 90+ High-Value Ceramic Coating & PPF Jobs in 6 Months – Guaranteed!
+            <h1 className="text-4xl font-bold text-white mb-4">
+              Choose Your Investment Plan
+            </h1>
+            <p className="text-xl text-gray-300 mb-12">
+              Get 90+ high-value jobs in 6 months - guaranteed
             </p>
 
-            {/* Program Value Section */}
-            <ProgramValueSection />
-            
-            {/* Plan Selection */}
-            <h2 className="text-2xl font-semibold text-white mb-6 text-center mt-12">
-              {showAllOptions ? "Choose Your Payment Option" : "Select Your Investment Model"}
-            </h2>
-            
-            <PlanSelection 
-              visiblePlans={visiblePlans}
-              selectedPlanId={selectedPlanId}
-              setSelectedPlanId={setSelectedPlanId}
-              isAnimating={isAnimating}
-              showCompactView={showAllOptions}
-              handleToggleOptions={handleToggleOptions}
-              showAllOptions={showAllOptions}
-              handleContinueToPayment={handleContinueToPayment}
-            />
-            
-            {/* Ad Spend Notice */}
-            <AdSpendNotice />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+              {allPlans.map((plan) => (
+                <div
+                  key={plan.id}
+                  onClick={() => setSelectedPlanId(plan.id)}
+                  className={`
+                    relative p-8 rounded-2xl cursor-pointer transition-all duration-300
+                    ${selectedPlanId === plan.id 
+                      ? 'bg-slate border-2 border-accent-red transform scale-105' 
+                      : 'bg-slate/80 border border-gray-700 hover:border-accent-red hover:scale-102'
+                    }
+                  `}
+                >
+                  {plan.isBestValue && (
+                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-accent-red text-white px-6 py-2 rounded-full font-bold text-sm">
+                      BEST VALUE
+                    </div>
+                  )}
+                  
+                  <h3 className="text-2xl font-bold text-white mb-4">{plan.title}</h3>
+                  
+                  <div className="mb-6">
+                    {plan.installments === 1 ? (
+                      <div className="text-center">
+                        <div className="text-4xl font-bold text-white">${plan.totalPrice.toLocaleString()}</div>
+                        <div className="text-gray-400">one-time payment</div>
+                      </div>
+                    ) : (
+                      <div className="text-center">
+                        <div className="text-4xl font-bold text-white">
+                          ${Math.round(plan.totalPrice / plan.installments).toLocaleString()}
+                        </div>
+                        <div className="text-gray-400">
+                          {plan.installments === 6 ? '/month' : `× ${plan.installments} payments`}
+                        </div>
+                        <div className="text-sm text-gray-500 mt-1">
+                          Total: ${plan.totalPrice.toLocaleString()}
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
-            {/* Testimonials */}
-            <Testimonials />
+                  {plan.valueProposition && (
+                    <div className={`
+                      text-center py-2 px-4 rounded-lg text-sm font-medium mb-4
+                      ${plan.valueProposition.includes('Save') 
+                        ? 'bg-green-900/30 text-green-400' 
+                        : 'bg-gray-900/30 text-gray-300'
+                      }
+                    `}>
+                      {plan.valueProposition}
+                    </div>
+                  )}
 
-            {/* Trust Indicators */}
-            <TrustIndicators />
+                  {selectedPlanId === plan.id && (
+                    <div className="absolute top-4 right-4 w-6 h-6 bg-accent-red rounded-full flex items-center justify-center">
+                      <div className="w-3 h-3 bg-white rounded-full"></div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={handleContinueToPayment}
+              disabled={!selectedPlanId}
+              className={`
+                px-12 py-4 text-xl font-bold rounded-xl transition-all duration-300
+                ${selectedPlanId 
+                  ? 'bg-accent-red hover:bg-accent-red/90 text-white shadow-lg hover:shadow-xl' 
+                  : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                }
+              `}
+            >
+              Continue to Payment
+            </button>
           </motion.div>
         ) : (
           <motion.div
@@ -145,13 +145,8 @@ const MultiStepEnrollment: React.FC<MultiStepEnrollmentProps> = ({ allPlans, pri
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mt-8"
+            transition={{ duration: 0.3 }}
           >
-            <h2 className="text-2xl font-semibold text-white mb-6 text-center">
-              Complete Your Enrollment
-            </h2>
-            
             <StripePaymentForm 
               selectedPlan={selectedPlan} 
               onBackClick={handleBackToPlanSelection} 
