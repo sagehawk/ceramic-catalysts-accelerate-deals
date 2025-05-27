@@ -28,11 +28,17 @@ const StripePaymentForm: React.FC<StripePaymentFormProps> = ({ selectedPlan, onB
     cardNumber: '',
     expiry: '',
     cvc: '',
+    agreeToTerms: false,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
+    
+    if (type === 'checkbox') {
+      setFormData({ ...formData, [name]: checked });
+      return;
+    }
     
     if (name === 'cardNumber') {
       const formatted = value.replace(/\s/g, '').replace(/(\d{4})/g, '$1 ').trim();
@@ -57,6 +63,15 @@ const StripePaymentForm: React.FC<StripePaymentFormProps> = ({ selectedPlan, onB
     e.preventDefault();
     
     if (!selectedPlan) return;
+    
+    if (!formData.agreeToTerms) {
+      toast({
+        title: "Terms Agreement Required",
+        description: "Please read and agree to the Terms of Agreement to continue.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     setIsSubmitting(true);
     
@@ -168,6 +183,29 @@ const StripePaymentForm: React.FC<StripePaymentFormProps> = ({ selectedPlan, onB
             </div>
           </div>
           
+          <div className="flex items-start space-x-3 mt-6">
+            <input
+              type="checkbox"
+              id="agreeToTerms"
+              name="agreeToTerms"
+              checked={formData.agreeToTerms}
+              onChange={handleChange}
+              required
+              className="mt-1 h-4 w-4 text-accent-red bg-slate border-gray-600 rounded focus:ring-accent-red focus:ring-2"
+            />
+            <label htmlFor="agreeToTerms" className="text-sm text-gray-300 leading-tight">
+              I have read and agree to the{' '}
+              <a 
+                href="/terms" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-accent-red hover:text-accent-red/80 underline"
+              >
+                Terms of Agreement
+              </a>
+            </label>
+          </div>
+          
           <div className="flex items-center justify-center text-gray-400 text-sm mt-6 mb-6">
             <Shield className="h-4 w-4 mr-2" />
             Secure 256-bit SSL encryption
@@ -176,7 +214,7 @@ const StripePaymentForm: React.FC<StripePaymentFormProps> = ({ selectedPlan, onB
           <Button
             type="submit"
             className="w-full py-6 bg-accent-red hover:bg-accent-red/90 text-white font-bold text-lg"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !formData.agreeToTerms}
           >
             {isSubmitting ? (
               <span className="flex items-center justify-center">

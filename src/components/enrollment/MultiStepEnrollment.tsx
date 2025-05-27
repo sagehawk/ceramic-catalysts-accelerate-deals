@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import PlanSelection from './PlanSelection';
 import StripePaymentForm from '../payment/StripePaymentForm';
 
 interface Plan {
@@ -26,6 +25,11 @@ interface MultiStepEnrollmentProps {
 const MultiStepEnrollment: React.FC<MultiStepEnrollmentProps> = ({ allPlans, primaryPlans }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
+  const [showAllPlans, setShowAllPlans] = useState(false);
+
+  // Show only the 6-month plan initially (best value plan)
+  const bestValuePlan = allPlans.find(plan => plan.isBestValue);
+  const visiblePlans = showAllPlans ? allPlans : (bestValuePlan ? [bestValuePlan] : []);
 
   // Find the selected plan from all available plans
   const selectedPlan = selectedPlanId 
@@ -62,8 +66,8 @@ const MultiStepEnrollment: React.FC<MultiStepEnrollmentProps> = ({ allPlans, pri
               Get 90+ high-value jobs in 6 months - guaranteed
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-              {allPlans.map((plan) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              {visiblePlans.map((plan) => (
                 <div
                   key={plan.id}
                   onClick={() => setSelectedPlanId(plan.id)}
@@ -124,6 +128,15 @@ const MultiStepEnrollment: React.FC<MultiStepEnrollmentProps> = ({ allPlans, pri
                 </div>
               ))}
             </div>
+
+            {!showAllPlans && (
+              <button
+                onClick={() => setShowAllPlans(true)}
+                className="text-accent-red hover:text-accent-red/80 underline mb-8 transition-colors"
+              >
+                Show more payment options
+              </button>
+            )}
 
             <button
               onClick={handleContinueToPayment}
