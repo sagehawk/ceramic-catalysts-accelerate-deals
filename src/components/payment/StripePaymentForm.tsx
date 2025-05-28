@@ -152,10 +152,14 @@ const CheckoutForm: React.FC<StripePaymentFormProps> = ({ selectedPlan, onBackCl
 
   const getAmountDueToday = (inCents: boolean = false) => {
     if (!selectedPlan) return 0;
-    const price = selectedPlan.installments === 1 
+
+    // Calculate the price for one installment in DOLLARS
+    const priceInDollars = selectedPlan.installments === 1 
       ? selectedPlan.totalPrice 
       : Math.round(selectedPlan.totalPrice / selectedPlan.installments);
-    return inCents ? price : price / 100; // Assuming totalPrice is in cents
+
+    // If inCents is true, convert to cents; otherwise, return dollars
+    return inCents ? Math.round(priceInDollars * 100) : priceInDollars;
   };
 
   if (!selectedPlan) return null;

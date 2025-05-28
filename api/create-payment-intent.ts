@@ -18,12 +18,10 @@ interface Plan {
 }
 
 const plans: Record<string | number, Plan> = {
-  // Example plans - replace with your actual plan details
-  // Ensure planId here matches what you send from the frontend
-  // And priceInCents is the actual amount in cents for Stripe
-  1: { id: 1, priceInCents: 10000, currency: 'usd' }, // Example: Plan ID 1, $100.00 USD
-  2: { id: 2, priceInCents: 5000, currency: 'usd' },  // Example: Plan ID 2, $50.00 USD
-  // Add your other plans here...
+  1: { id: 1, priceInCents: 450000, currency: 'usd' }, // $4500.00 total
+  3: { id: 3, priceInCents: 500000, currency: 'usd' }, // $5000.00 total
+  4: { id: 4, priceInCents: 540000, currency: 'usd' }, // $5400.00 total
+  2: { id: 2, priceInCents: 900000, currency: 'usd' }, // $9000.00 total
 };
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -33,26 +31,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { paymentMethodId, planId, email, fullName, currency } = req.body;
+    const { paymentMethodId, planId, email, fullName, currency, amount: amountFromClient } = req.body;
 
-    if (!paymentMethodId || !planId) {
-      return res.status(400).json({ error: 'Missing paymentMethodId or planId.' });
+    if (!paymentMethodId || !planId || amountFromClient === undefined) {
+      return res.status(400).json({ error: 'Missing paymentMethodId, planId, or amount.' });
     }
 
-    // --- IMPORTANT: Amount Determination --- 
-    // Fetch plan details from your server-side source using planId
-    // DO NOT rely on an amount sent from the client-side for the final charge.
-    const selectedPlanDetails = plans[planId]; // Fetch from your defined plans
+    const selectedPlanDetails = plans[planId];
 
     if (!selectedPlanDetails) {
         return res.status(404).json({ error: 'Invalid plan selected.' });
     }
-    const amount = selectedPlanDetails.priceInCents;
+    
+    const amountToCharge = Number(amountFromClient);
+    if (isNaN(amountToCharge) || amountToCharge <= 0) {
+        return res.status(400).json({ error: 'Invalid amount.' });
+    }
+
     const planCurrency = selectedPlanDetails.currency || currency || 'usd';
-    // --- End Amount Determination ---
 
     // Optional: Create or retrieve a Stripe Customer
-    // This is useful if you want to save card details for future payments or manage subscriptions.
     let customer;
     const existingCustomers = await stripe.customers.list({ email: email, limit: 1 });
     if (existingCustomers.data.length > 0) {
@@ -61,24 +59,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       customer = await stripe.customers.create({
         email: email,
         name: fullName,
-        payment_method: paymentMethodId, // Optionally set default payment method
+        payment_method: paymentMethodId, 
         invoice_settings: {
-            default_payment_method: paymentMethodId, // For subscriptions
+            default_payment_method: paymentMethodId, 
         },
       });
     }
 
     // Create a PaymentIntent
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: amount, // Amount in cents
+      amount: amountToCharge, // USE THE AMOUNT FROM CLIENT
       currency: planCurrency,
       payment_method: paymentMethodId,
-      customer: customer.id, // Associate with the customer
-      confirm: true, // Attempt to confirm the payment immediately
-      automatic_payment_methods: { enabled: true, allow_redirects: 'never' }, // Handles SCA like 3D Secure
-      // off_session: false, // Set to true if this is for a subscription renewal or similar off-session payment
-      description: `Enrollment for Plan ID: ${planId}`,
-      receipt_email: email, // Send Stripe receipt to this email
+      customer: customer.id, 
+      confirm: true, 
+      automatic_payment_methods: { enabled: true, allow_redirects: 'never' }, 
+      description: `Enrollment for Plan ID: ${planId} - ${selectedPlanDetails.title || ''}`,
+      receipt_email: email, 
     });
 
     // Handle the PaymentIntent status
