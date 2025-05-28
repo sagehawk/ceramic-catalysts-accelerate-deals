@@ -1,15 +1,20 @@
 
 import React, { useState } from 'react';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Loader, Shield } from 'lucide-react';
 
+// Load Stripe with the publishable key from environment variables
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as string);
+
 interface Plan {
   id: number;
   title: string;
-  totalPrice: number;
+  totalPrice: number; // Amount in cents for Stripe
   installments: number;
   isBestValue?: boolean;
 }
@@ -19,50 +24,36 @@ interface StripePaymentFormProps {
   onBackClick: () => void;
 }
 
-const StripePaymentForm: React.FC<StripePaymentFormProps> = ({ selectedPlan, onBackClick }) => {
+const CheckoutForm: React.FC<StripePaymentFormProps> = ({ selectedPlan, onBackClick }) => {
+  const stripe = useStripe();
+  const elements = useElements();
   const { toast } = useToast();
   
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
-    cardNumber: '',
-    expiry: '',
-    cvc: '',
     agreeToTerms: false,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     
     if (type === 'checkbox') {
       setFormData({ ...formData, [name]: checked });
-      return;
+    } else {
+      setFormData({ ...formData, [name]: value });
     }
-    
-    if (name === 'cardNumber') {
-      const formatted = value.replace(/\s/g, '').replace(/(\d{4})/g, '$1 ').trim();
-      setFormData({ ...formData, [name]: formatted.substring(0, 19) });
-      return;
-    }
-    
-    if (name === 'expiry') {
-      const formatted = value.replace(/\D/g, '');
-      if (formatted.length <= 2) {
-        setFormData({ ...formData, [name]: formatted });
-      } else {
-        setFormData({ ...formData, [name]: `${formatted.substring(0, 2)}/${formatted.substring(2, 4)}` });
-      }
-      return;
-    }
-    
-    setFormData({ ...formData, [name]: value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!selectedPlan) return;
+    if (!selectedPlan || !stripe || !elements) {
+      setError("Stripe.js has not loaded yet. Please try again in a moment.");
+      return;
+    }
     
     if (!formData.agreeToTerms) {
       toast({
@@ -74,24 +65,118 @@ const StripePaymentForm: React.FC<StripePaymentFormProps> = ({ selectedPlan, onB
     }
     
     setIsSubmitting(true);
-    
-    setTimeout(() => {
+    setError(null);
+
+    const cardElement = elements.getElement(CardElement);
+    if (!cardElement) {
+        setIsSubmitting(false);
+        setError("Card element not found. Please refresh and try again.");
+        return;
+    }
+
+    // 1. Create a PaymentMethod
+    const { error: paymentMethodError, paymentMethod } = await stripe.createPaymentMethod({
+      type: 'card',
+      card: cardElement,
+      billing_details: {
+        name: formData.fullName,
+        email: formData.email,
+      },
+    });
+
+    if (paymentMethodError || !paymentMethod) {
+      setError(paymentMethodError?.message || "Failed to create PaymentMethod. Please check your card details.");
       setIsSubmitting(false);
-      toast({
-        title: "Enrollment Complete!",
-        description: `Welcome to the program, ${formData.fullName}! Check your email for next steps.`,
+      return;
+    }
+
+    // 2. Send PaymentMethod ID and plan details to your backend
+    try {
+      const response = await fetch('/api/create-payment-intent', { // This is the backend endpoint we'll create
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          paymentMethodId: paymentMethod.id,
+          planId: selectedPlan.id, // Send plan ID to determine amount on backend
+          amount: getAmountDueToday(true), // Send amount in cents
+          currency: 'usd', // Or your desired currency
+          email: formData.email,
+          fullName: formData.fullName
+        }),
       });
-    }, 2000);
+
+      const paymentResult = await response.json();
+
+      if (!response.ok || paymentResult.error) {
+        setError(paymentResult.error || 'Payment failed. Please try again.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      // 3. Handle successful payment (or further actions like 3D Secure)
+      if (paymentResult.requiresAction) {
+        // Payment requires further action (e.g., 3D Secure)
+        const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(
+          paymentResult.clientSecret // The client secret from your backend
+        );
+        if (confirmError) {
+          setError(confirmError.message || 'Failed to confirm payment. Please try again.');
+          setIsSubmitting(false);
+        } else if (paymentIntent?.status === 'succeeded') {
+          toast({
+            title: "Enrollment Complete!",
+            description: `Welcome to the program, ${formData.fullName}! Check your email for next steps.`,
+          });
+          // Optionally, clear form, redirect, etc.
+        } else {
+            setError(`Payment status: ${paymentIntent?.status}. Please contact support.`);
+        }
+      } else if (paymentResult.success) {
+        // Payment successful without further action
+        toast({
+          title: "Enrollment Complete!",
+          description: `Welcome to the program, ${formData.fullName}! Check your email for next steps.`,
+        });
+         // Optionally, clear form, redirect, etc.
+      }
+
+    } catch (err: any) {
+      console.error("API call failed:", err);
+      setError("An unexpected error occurred while processing your payment. Please try again.");
+    }
+
+    setIsSubmitting(false);
   };
 
-  const getAmountDueToday = () => {
+  const getAmountDueToday = (inCents: boolean = false) => {
     if (!selectedPlan) return 0;
-    return selectedPlan.installments === 1 
+    const price = selectedPlan.installments === 1 
       ? selectedPlan.totalPrice 
       : Math.round(selectedPlan.totalPrice / selectedPlan.installments);
+    return inCents ? price : price / 100; // Assuming totalPrice is in cents
   };
 
   if (!selectedPlan) return null;
+
+  const cardElementOptions = {
+    style: {
+      base: {
+        color: '#ffffff',
+        fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+        fontSmoothing: 'antialiased',
+        fontSize: '16px',
+        '::placeholder': {
+          color: '#aab7c4'
+        }
+      },
+      invalid: {
+        color: '#fa755a', // Typically red for errors
+        iconColor: '#fa755a'
+      }
+    }
+  };
 
   return (
     <div className="max-w-md mx-auto">
@@ -109,7 +194,7 @@ const StripePaymentForm: React.FC<StripePaymentFormProps> = ({ selectedPlan, onB
           <div className="bg-slate/50 p-4 rounded-xl">
             <div className="text-white font-medium">{selectedPlan.title}</div>
             <div className="text-2xl font-bold text-accent-red mt-1">
-              ${getAmountDueToday().toLocaleString()}
+              ${getAmountDueToday().toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               {selectedPlan.installments > 1 && (
                 <span className="text-sm text-gray-400 block">
                   First of {selectedPlan.installments} payments
@@ -146,43 +231,14 @@ const StripePaymentForm: React.FC<StripePaymentFormProps> = ({ selectedPlan, onB
           </div>
           
           <div>
-            <Label className="text-gray-300">Card Number</Label>
-            <Input
-              name="cardNumber"
-              value={formData.cardNumber}
-              onChange={handleChange}
-              required
-              placeholder="4242 4242 4242 4242"
-              className="bg-slate border-gray-600 text-white mt-1"
-            />
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label className="text-gray-300">Expiry</Label>
-              <Input
-                name="expiry"
-                value={formData.expiry}
-                onChange={handleChange}
-                required
-                placeholder="MM/YY"
-                className="bg-slate border-gray-600 text-white mt-1"
-              />
-            </div>
-            <div>
-              <Label className="text-gray-300">CVC</Label>
-              <Input
-                name="cvc"
-                value={formData.cvc}
-                onChange={handleChange}
-                required
-                placeholder="123"
-                maxLength={3}
-                className="bg-slate border-gray-600 text-white mt-1"
-              />
+            <Label className="text-gray-300">Card Details</Label>
+            <div className="bg-slate border border-gray-600 text-white mt-1 p-3 rounded-md">
+                 <CardElement options={cardElementOptions} />
             </div>
           </div>
           
+          {error && <div className="text-accent-red text-sm p-2 bg-red-900/30 rounded-md">{error}</div>}
+
           <div className="flex items-start space-x-3 mt-6">
             <input
               type="checkbox"
@@ -208,13 +264,13 @@ const StripePaymentForm: React.FC<StripePaymentFormProps> = ({ selectedPlan, onB
           
           <div className="flex items-center justify-center text-gray-400 text-sm mt-6 mb-6">
             <Shield className="h-4 w-4 mr-2" />
-            Secure 256-bit SSL encryption
+            Secure payment with Stripe
           </div>
           
           <Button
             type="submit"
             className="w-full py-6 bg-accent-red hover:bg-accent-red/90 text-white font-bold text-lg"
-            disabled={isSubmitting || !formData.agreeToTerms}
+            disabled={isSubmitting || !formData.agreeToTerms || !stripe || !elements}
           >
             {isSubmitting ? (
               <span className="flex items-center justify-center">
@@ -222,7 +278,7 @@ const StripePaymentForm: React.FC<StripePaymentFormProps> = ({ selectedPlan, onB
                 Processing...
               </span>
             ) : (
-              `Complete Enrollment - $${getAmountDueToday().toLocaleString()}`
+              `Complete Enrollment - $${getAmountDueToday().toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
             )}
           </Button>
         </form>
@@ -231,4 +287,10 @@ const StripePaymentForm: React.FC<StripePaymentFormProps> = ({ selectedPlan, onB
   );
 };
 
-export default StripePaymentForm;
+const StripePaymentFormWrapper: React.FC<StripePaymentFormProps> = (props) => (
+  <Elements stripe={stripePromise}>
+    <CheckoutForm {...props} />
+  </Elements>
+);
+
+export default StripePaymentFormWrapper;
