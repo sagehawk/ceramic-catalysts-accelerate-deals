@@ -1,20 +1,22 @@
+// tsconfig.json (root)
 {
-  "files": [],
+  "files": [], // This is fine for a project-references setup
   "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
+    { "path": "./tsconfig.app.json" },  // For your Vite frontend (likely outputs ESM or is bundled)
+    { "path": "./tsconfig.node.json" } // For your Vercel API functions (needs to output ESM)
   ],
   "compilerOptions": {
+    // General base settings that both app and node might share, but NO module-specific ones.
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"] // If used by both frontend and backend (adjust paths if backend needs different ones)
     },
-    "noImplicitAny": false,
-    "noUnusedParameters": false,
     "skipLibCheck": true,
     "allowJs": true,
-    "noUnusedLocals": false,
-    "strictNullChecks": false,
-    "module": "commonjs"  // Add this line
+    "strictNullChecks": false, // Your preference
+    "noImplicitAny": false,    // Your preference
+    "noUnusedLocals": false,   // Your preference
+    "noUnusedParameters": false // Your preference
+    // DO NOT put "module": "commonjs" here.
   }
 }

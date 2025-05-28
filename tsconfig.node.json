@@ -1,53 +1,39 @@
 // tsconfig.node.json
 {
-  "extends": "./tsconfig.json", // Optional: inherit from the root tsconfig if it has useful base settings
-                               // If you use this, make sure the module settings below take precedence.
   "compilerOptions": {
-    "composite": true,         // Good to have with project references
-    "target": "ES2022",        // Node.js version on Vercel should support this
-    "lib": ["ES2023"],         // Or just ["ESNext"] if target is ESNext
-    "module": "ESNext",        // CRITICAL: Output ES modules
-    "moduleResolution": "NodeNext", // CRITICAL: For modern Node.js ESM. "bundler" might also work but NodeNext is more specific for Node.
-    // "allowImportingTsExtensions": false, // Usually false, .js imports .js in ESM
-    "resolveJsonModule": true, // Often useful for importing JSON files
-    "isolatedModules": true,   // Good practice, ensures each file can be transpiled separately
-    // "moduleDetection": "force", // Usually not needed if module system is clear
-    "esModuleInterop": true,   // Recommended for better interop with CJS modules if you import any
-    "forceConsistentCasingInFileNames": true,
+    "composite": true,             // Recommended for project references
     "skipLibCheck": true,
-
-    /* Bundler mode - "moduleResolution": "bundler" is an alternative to "nodenext" */
-    /* If you stick with "bundler", ensure "allowImportingTsExtensions" is true if you write e.g. import './foo.ts' */
-
-    /* Output */
-    "noEmit": false,           // CRITICAL: Set to false to actually output JavaScript files
-    "outDir": "./dist/server", // Or "vercel-build-output" or similar.
-                               // Vercel often builds to a specific output structure,
-                               // but having a dedicated outDir is good practice.
-                               // If Vercel handles output implicitly, you might not need this strictly,
-                               // but explicitly setting it and ensuring it's used is safer.
-
-    /* Linting / Strictness */
+    "module": "ESNext",            // CRITICAL: Output ES Module syntax
+    "moduleResolution": "NodeNext",  // CRITICAL: Use Node.js's ESM resolution
+    "target": "ES2022",            // Or a recent ES version supported by Node on Vercel
+    "allowSyntheticDefaultImports": true, // Often helpful
+    "esModuleInterop": true,       // Enables 'import foo from "bar"' for CJS modules
+    "resolveJsonModule": true,     // Allows importing .json files
+    "isolatedModules": true,       // Good practice for transpilers
     "strict": true,
-    "noUnusedLocals": false, // Your preference
-    "noUnusedParameters": false, // Your preference
-    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": false,       // Your preference
+    "noUnusedParameters": false,   // Your preference
+    "forceConsistentCasingInFileNames": true,
+    
+    "noEmit": false,               // CRITICAL: MUST BE FALSE to output JavaScript files
 
-    /* Path Aliases - if needed for server code, ensure they match root or are defined here */
+    // You can specify an outDir, though Vercel might manage outputs internally.
+    // Having it can be good for local builds or understanding.
+    // "outDir": "dist/server", 
+
+    // If your server code uses paths, define them here or inherit from root.
     // "baseUrl": ".",
     // "paths": {
-    //   "@/*": ["./src/*"] // Only if your server-side code uses these aliases AND they point to relevant server code
+    //   "@/*": ["./src/*"] // Only if your API code uses these and they point to relevant server files
     // }
   },
   "include": [
-    "api/**/*.ts",          // CRITICAL: Include your serverless functions
-    "vite.config.ts"        // Keep this if it's also processed by this config
-    // Add any other Node.js specific TS files here (e.g., helper scripts, server setup if not serverless)
+    "api/**/*.ts"              // CRITICAL: This tells TSC to compile all .ts files in the 'api' directory using these settings
+    // "vite.config.ts"        // Include if your vite.config.ts is TypeScript and needs these Node settings
   ],
   "exclude": [
     "node_modules",
-    "dist",                   // Exclude the output directory
-    "src"                     // Exclude frontend app source if handled by tsconfig.app.json
-                              // and not used directly by Node.js server code.
+    // "dist",                 // If you use an outDir
+    "src"                     // Exclude frontend source, handled by tsconfig.app.json
   ]
 }
